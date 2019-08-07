@@ -6,11 +6,12 @@ import numpy as np
 
 class EmbeddingNet(nn.Module):
     def __init__(self):
+        # TODO make these inputable/editable parameters
         super(EmbeddingNet, self).__init__()
         input_depth = 3
-        layer1_stride = 2
+        layer1_stride = 4
         layer1_kernel_size = 8
-        layer1_output_channels = 8
+        layer1_output_channels = 64
         self.num_filters = layer1_output_channels
         layer1_padding = 0
 
@@ -38,6 +39,17 @@ class TripletNet(nn.Module):
         output2 = self.embedding_net(x2)
         output3 = self.embedding_net(x3)
         return output1, output2, output3
+
+    def get_embedding(self, x):
+        return self.embedding_net(x)
+
+class OnlineTripletNet(nn.Module):
+    def __init__(self, embedding_net):
+        super(OnlineTripletNet, self).__init__()
+        self.embedding_net = embedding_net
+
+    def forward(self, x):
+        return self.embedding_net(x)
 
     def get_embedding(self, x):
         return self.embedding_net(x)

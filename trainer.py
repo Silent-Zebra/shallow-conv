@@ -2,6 +2,8 @@
 
 import torch
 import numpy as np
+import utils
+import torch.nn.functional as F
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
         start_epoch=0):
@@ -38,6 +40,27 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         print(message)
 
 
+def reshape_outputs_and_create_labels(outputs):
+    outputs = outputs.view(
+        (outputs.shape[0], outputs.shape[1],
+         outputs.shape[2] ** 2)).permute(0, 2, 1).contiguous()
+
+    # print(outputs.shape)
+
+    end = outputs.shape[0] * outputs.shape[1]
+    target = torch.arange(0, end=end) / outputs.shape[1]
+    target = target.view((outputs.shape[0], outputs.shape[1], 1))
+
+    # print(target.shape)
+    # print(target)
+
+    target = target.view(-1, 1)
+
+    outputs = outputs.view(-1, outputs.shape[2])
+
+    return outputs, target
+
+
 def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics):
     for metric in metrics:
         metric.reset()
@@ -52,11 +75,39 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             data = (data,)
         if cuda:
             data = tuple(d.cuda() for d in data)
-            if target is not None:
-                target = target.cuda()
+
+        # print(target)
+        # print(data[0].shape)
 
         optimizer.zero_grad()
         outputs = model(*data)
+
+        # # print(outputs.shape)
+        #
+        # outputs = outputs.view((outputs.shape[0], outputs.shape[1], outputs.shape[2]**2)).permute(0, 2, 1).contiguous()
+        #
+        # # print(outputs.shape)
+        #
+        # end = outputs.shape[0] * outputs.shape[1]
+        # target = torch.arange(0, end=end) / outputs.shape[1]
+        # target = target.view((outputs.shape[0], outputs.shape[1], 1))
+        #
+        # # print(target.shape)
+        # # print(target)
+        #
+        #
+        # target = target.view(-1, 1)
+        #
+        # outputs = outputs.view(-1, outputs.shape[2])
+        # # print(outputs.shape)
+        # # print(target.shape)
+
+        outputs, target = reshape_outputs_and_create_labels(outputs)
+
+        if cuda:
+            if target is not None:
+                target = target.cuda()
+
 
         if type(outputs) not in (tuple, list):
             outputs = (outputs,)
@@ -65,6 +116,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         if target is not None:
             target = (target,)
             loss_inputs += target
+
+        # print(loss_inputs)
 
         loss_outputs = loss_fn(*loss_inputs)
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
@@ -86,6 +139,18 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             print(message)
             losses = []
 
+
+            visualize_difference(model, data)
+
+
+        # early_stop = 20000
+        # if batch_idx* len(data[0]) > early_stop:
+        #     print("early stop")
+        #     total_loss /= (batch_idx + 1)
+        #     return total_loss, metrics
+
+
+
     total_loss /= (batch_idx + 1)
     return total_loss, metrics
 
@@ -102,10 +167,14 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
                 data = (data,)
             if cuda:
                 data = tuple(d.cuda() for d in data)
-                if target is not None:
-                    target = target.cuda()
 
             outputs = model(*data)
+
+            outputs, target = reshape_outputs_and_create_labels(outputs)
+
+            if cuda:
+                if target is not None:
+                    target = target.cuda()
 
             if type(outputs) not in (tuple, list):
                 outputs = (outputs,)
@@ -121,4 +190,52 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
             for metric in metrics:
                 metric(outputs, target, loss_outputs)
 
+            early_stop = 5000
+            if batch_idx * len(data[0]) > early_stop:
+                visualize_difference(model, data)
+
+                print("early stop")
+                return val_loss, metrics
+
     return val_loss, metrics
+
+def reshape_conv_embedding(embedding1):
+    embedding1 = embedding1.view(-1, embedding1.shape[1] ** 2)
+    embedding1 = embedding1.permute(1, 0)
+    return embedding1
+
+
+def get_cosine_loss_individual(model, image, image_2, verbose=True):
+    # For testing only
+    num_filters = model.embedding_net.num_filters
+    embedding1 = model(image.unsqueeze(dim=0))
+    embedding1 = reshape_conv_embedding(embedding1)
+    print(embedding1.shape)
+    # embedding1 =
+    # view(1, num_filters)
+    embedding2 = model(image_2.unsqueeze(dim=0))
+    embedding2 = reshape_conv_embedding(embedding2)
+
+    if verbose:
+        print(embedding1[0])
+        print(embedding1[1])
+        print(embedding2[0])
+        print(embedding2[1])
+        cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6)
+        print(cos(embedding1[0], embedding1[1]))
+        print(cos(embedding2[0], embedding2[1]))
+        print(cos(embedding1[0], embedding2[0]))
+
+
+def visualize_difference(model, data):
+    # For testing only
+    input_visualize = 0
+    for i in range(input_visualize):
+        img1 = data[0][i]
+        img2 = data[0][i + input_visualize]
+        utils.visualize_image(img1)
+        utils.visualize_image(img2)
+        print(model(img1.unsqueeze(dim=0)).shape)
+        get_cosine_loss_individual(model, data[0][i],
+                                   data[0][i + input_visualize],
+                                   verbose=True)
