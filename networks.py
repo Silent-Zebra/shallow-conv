@@ -4,6 +4,43 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+
+class ClassifierCNN(nn.Module):
+    def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
+                 layer1_output_channels, layer1_padding, output_size):
+        super(ClassifierCNN, self).__init__()
+
+        self.num_filters = layer1_output_channels
+
+        layer1_output_size = int((int(input_size) - layer1_kernel_size + 2*layer1_padding) / layer1_stride + 1)
+
+        layer2_kernel_size = 6
+        layer2_stride = 1
+        layer2_padding = 0
+
+        layer2_output_size = int((int(layer1_output_size) - layer2_kernel_size + 2*layer2_padding) / layer2_stride + 1)
+
+        self.convnet = nn.Sequential(
+            nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
+                      layer1_stride, layer1_padding),
+            nn.LeakyReLU(),
+            nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
+                      layer2_stride, layer2_padding),
+            nn.LeakyReLU(),
+        )
+
+        self.fc = nn.Linear(layer2_output_size**2 * layer1_output_channels, output_size)
+
+        self.output_size = output_size
+
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = output.view(-1, output.shape[1] * output.shape[2]**2)
+        output = self.fc(output)
+        return output
+
+
 class EmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
                  layer1_output_channels, layer1_padding=0):
