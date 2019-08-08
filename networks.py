@@ -14,7 +14,7 @@ class ClassifierCNN(nn.Module):
 
         layer1_output_size = int((int(input_size) - layer1_kernel_size + 2*layer1_padding) / layer1_stride + 1)
 
-        layer2_kernel_size = 6
+        layer2_kernel_size = 3
         layer2_stride = 1
         layer2_padding = 0
 
