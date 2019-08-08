@@ -1,6 +1,5 @@
 # Adapted from https://github.com/adambielski/siamese-triplet
-
-from random import choice
+import random
 
 import numpy as np
 import torch
@@ -8,30 +7,6 @@ from astropy.visualization import make_lupton_rgb
 import matplotlib.pyplot as plt
 
 from itertools import combinations
-
-
-def generate_patches(image_tensor, patch_size, stride):
-    # These are min edges for the top left most patch
-    # For now, taking a total of 9 non-overlapping patches
-    min_top_start = 0
-    image_height = image_tensor.shape[1]
-    max_top_start = image_height - patch_size - 2 * stride
-    top_start = np.random.randint(min_top_start, max_top_start)
-
-    min_left_start = 0
-    image_width = image_tensor.shape[2]
-    max_left_start = image_width - patch_size - 2 * stride
-    left_start = np.random.randint(min_left_start, max_left_start)
-
-    patches = []
-    for i in range(3):
-        for j in range(3):
-            left_edge = left_start + j * stride
-            top_edge = top_start + i * stride
-            patch = image_tensor[:, top_edge:top_edge+patch_size, left_edge:left_edge+patch_size]
-            patches.append(patch)
-
-    return patches
 
 
 def generate_random_patch(image_tensor, patch_size):
@@ -42,20 +17,6 @@ def generate_random_patch(image_tensor, patch_size):
     patch = image_tensor[:, top_edge:top_edge + patch_size,
             left_edge:left_edge + patch_size]
     return patch
-
-
-def generate_training_example(patches):
-    image = patches[4]
-    # patches[4] exctracts the center of the 9 patches
-    # target = sum(patches) - patches[4]
-    # target = target / 8
-
-    # random selection
-    selection = choice([j for j in range(9) if j != 4])
-
-    target = patches[selection]
-    # target right now is an average value of the 8 surrounding patches
-    return image, target
 
 
 def visualize_image(image):
@@ -70,7 +31,6 @@ def normalize_01(tensor):
 
 
 def pdist(vectors):
-    # print(vectors)
     distance_matrix = -2 * vectors.mm(torch.t(vectors)) + vectors.pow(2).sum(dim=1).view(1, -1) + vectors.pow(2).sum(
         dim=1).view(-1, 1)
     return distance_matrix
@@ -155,24 +115,39 @@ class FunctionNegativeTripletSelector(TripletSelector):
         labels = labels.cpu().data.numpy()
         triplets = []
 
+        last_label = None
+
         for label in list(labels):
+            # Ensure only one iteration through each downsampled image to avoid
+            # sample correlation
+            if label == last_label:
+                continue
+            else:
+                last_label = label
+
             label_mask = (labels == label)
             label_indices = np.where(label_mask)[0]
-            if len(label_indices) < 2:
-                continue
+            # if len(label_indices) < 2:
+            #     continue
             negative_indices = np.where(np.logical_not(label_mask))[0]
             anchor_positives = list(combinations(label_indices, 2))  # All anchor-positive pairs
+            # anchor_positives = random.choice(anchor_positives) # Select a specific pair
             anchor_positives = np.array(anchor_positives)
 
             ap_distances = distance_matrix[anchor_positives[:, 0], anchor_positives[:, 1]]
-            for anchor_positive, ap_distance in zip(anchor_positives, ap_distances):
-                # Calculate loss on the embeddings
-                loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
-                loss_values = loss_values.data.cpu().numpy()
-                hard_negative = self.negative_selection_fn(loss_values)
-                if hard_negative is not None:
-                    hard_negative = negative_indices[hard_negative]
-                    triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
+
+            # Select a random pair instead of doing all positive combinations
+            rand_index = random.randint(0, len(ap_distances) - 1)
+            # for anchor_positive, ap_distance in zip(anchor_positives, ap_distances):
+            anchor_positive = anchor_positives[rand_index]
+            ap_distance = ap_distances[rand_index]
+            # Calculate loss on the embeddings
+            loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
+            loss_values = loss_values.data.cpu().numpy()
+            hard_negative = self.negative_selection_fn(loss_values)
+            if hard_negative is not None:
+                hard_negative = negative_indices[hard_negative]
+                triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
 
         if len(triplets) == 0:
             triplets.append([anchor_positive[0], anchor_positive[1], negative_indices[0]])

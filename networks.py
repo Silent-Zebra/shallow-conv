@@ -5,15 +5,11 @@ import torch.nn.functional as F
 import numpy as np
 
 class EmbeddingNet(nn.Module):
-    def __init__(self):
-        # TODO make these inputable/editable parameters
+    def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
+                 layer1_output_channels, layer1_padding=0):
         super(EmbeddingNet, self).__init__()
-        input_depth = 3
-        layer1_stride = 4
-        layer1_kernel_size = 8
-        layer1_output_channels = 64
+
         self.num_filters = layer1_output_channels
-        layer1_padding = 0
 
         self.convnet = nn.Sequential(
             nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,

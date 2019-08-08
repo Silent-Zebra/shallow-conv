@@ -6,7 +6,7 @@ import utils
 import torch.nn.functional as F
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-        start_epoch=0):
+        start_epoch=0, visualize_workings=0):
     """
     Loaders, model, loss function and metrics should work together for a given task,
     i.e. The model should be able to process data output of loaders,
@@ -23,13 +23,13 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         scheduler.step()
 
         # Train stage
-        train_loss, metrics = train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics)
+        train_loss, metrics = train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics, visualize_workings)
 
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(epoch + 1, n_epochs, train_loss)
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        val_loss, metrics = test_epoch(val_loader, model, loss_fn, cuda, metrics)
+        val_loss, metrics = test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings)
         val_loss /= len(val_loader)
 
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
@@ -45,15 +45,9 @@ def reshape_outputs_and_create_labels(outputs):
         (outputs.shape[0], outputs.shape[1],
          outputs.shape[2] ** 2)).permute(0, 2, 1).contiguous()
 
-    # print(outputs.shape)
-
     end = outputs.shape[0] * outputs.shape[1]
     target = torch.arange(0, end=end) / outputs.shape[1]
     target = target.view((outputs.shape[0], outputs.shape[1], 1))
-
-    # print(target.shape)
-    # print(target)
-
     target = target.view(-1, 1)
 
     outputs = outputs.view(-1, outputs.shape[2])
@@ -61,7 +55,8 @@ def reshape_outputs_and_create_labels(outputs):
     return outputs, target
 
 
-def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics):
+def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
+                metrics, visualize_workings):
     for metric in metrics:
         metric.reset()
 
@@ -76,31 +71,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         if cuda:
             data = tuple(d.cuda() for d in data)
 
-        # print(target)
-        # print(data[0].shape)
-
         optimizer.zero_grad()
         outputs = model(*data)
-
-        # # print(outputs.shape)
-        #
-        # outputs = outputs.view((outputs.shape[0], outputs.shape[1], outputs.shape[2]**2)).permute(0, 2, 1).contiguous()
-        #
-        # # print(outputs.shape)
-        #
-        # end = outputs.shape[0] * outputs.shape[1]
-        # target = torch.arange(0, end=end) / outputs.shape[1]
-        # target = target.view((outputs.shape[0], outputs.shape[1], 1))
-        #
-        # # print(target.shape)
-        # # print(target)
-        #
-        #
-        # target = target.view(-1, 1)
-        #
-        # outputs = outputs.view(-1, outputs.shape[2])
-        # # print(outputs.shape)
-        # # print(target.shape)
 
         outputs, target = reshape_outputs_and_create_labels(outputs)
 
@@ -116,8 +88,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         if target is not None:
             target = (target,)
             loss_inputs += target
-
-        # print(loss_inputs)
 
         loss_outputs = loss_fn(*loss_inputs)
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
@@ -139,9 +109,7 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             print(message)
             losses = []
 
-
-            visualize_difference(model, data)
-
+            visualize_difference(model, data, visualize_workings)
 
         # early_stop = 20000
         # if batch_idx* len(data[0]) > early_stop:
@@ -149,13 +117,11 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         #     total_loss /= (batch_idx + 1)
         #     return total_loss, metrics
 
-
-
     total_loss /= (batch_idx + 1)
     return total_loss, metrics
 
 
-def test_epoch(val_loader, model, loss_fn, cuda, metrics):
+def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings):
     with torch.no_grad():
         for metric in metrics:
             metric.reset()
@@ -192,7 +158,7 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
 
             early_stop = 5000
             if batch_idx * len(data[0]) > early_stop:
-                visualize_difference(model, data)
+                visualize_difference(model, data, visualize_workings)
 
                 print("early stop")
                 return val_loss, metrics
@@ -207,29 +173,29 @@ def reshape_conv_embedding(embedding1):
 
 def get_cosine_loss_individual(model, image, image_2, verbose=True):
     # For testing only
-    num_filters = model.embedding_net.num_filters
     embedding1 = model(image.unsqueeze(dim=0))
     embedding1 = reshape_conv_embedding(embedding1)
-    print(embedding1.shape)
-    # embedding1 =
-    # view(1, num_filters)
     embedding2 = model(image_2.unsqueeze(dim=0))
     embedding2 = reshape_conv_embedding(embedding2)
 
     if verbose:
+        print("Image1 First Patch Embedding:")
         print(embedding1[0])
+        print("Image1 Second Patch Embedding:")
         print(embedding1[1])
+        print("Image2 First Patch Embedding:")
         print(embedding2[0])
+        print("Image2 Second Patch Embedding:")
         print(embedding2[1])
         cos = torch.nn.CosineSimilarity(dim=0, eps=1e-6)
-        print(cos(embedding1[0], embedding1[1]))
-        print(cos(embedding2[0], embedding2[1]))
-        print(cos(embedding1[0], embedding2[0]))
+        print("Cosine Similarity Image1 Patch 1 and Patch 2: " + str(cos(embedding1[0], embedding1[1]).item()))
+        print("Cosine Similarity Image2 Patch 1 and Patch 2: " + str(cos(embedding2[0], embedding2[1]).item()))
+        print("Cosine Similarity Image1 Patch 1 and Image2 Patch 1: " + str(cos(embedding1[0], embedding2[0]).item()))
 
 
-def visualize_difference(model, data):
+def visualize_difference(model, data, visualize_workings=0):
     # For testing only
-    input_visualize = 0
+    input_visualize = visualize_workings
     for i in range(input_visualize):
         img1 = data[0][i]
         img2 = data[0][i + input_visualize]
