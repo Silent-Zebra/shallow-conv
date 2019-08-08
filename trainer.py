@@ -90,7 +90,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
             if targets is not None:
                 targets = targets.cuda()
 
-
         predictions = torch.argmax(outputs, dim=1)
 
         correct = predictions==torch.argmax(targets, dim=1)
@@ -151,6 +150,8 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
             metric.reset()
         model.eval()
         val_loss = 0
+        accuracy_record = []
+
         for batch_idx, (data, targets) in enumerate(val_loader):
             targets = targets if len(targets) > 0 else None
             if not type(data) in (tuple, list):
@@ -170,6 +171,14 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
                 if targets is not None:
                     targets = targets.cuda()
 
+            predictions = torch.argmax(outputs, dim=1)
+
+            correct = predictions == torch.argmax(targets, dim=1)
+
+            accuracy = float(sum(correct)) / float(len(correct))
+
+            accuracy_record.append(accuracy)
+
             if type(outputs) not in (tuple, list):
                 outputs = (outputs,)
             loss_inputs = outputs
@@ -181,17 +190,19 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
             loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
             val_loss += loss.item()
 
+
             for metric in metrics:
                 metric(outputs, targets, loss_outputs)
 
-            early_stop = 5000
-            if batch_idx * len(data[0]) > early_stop:
-                visualize_difference(model, data, visualize_workings)
+            # early_stop = 5000
+            # if batch_idx * len(data[0]) > early_stop:
+            #     visualize_difference(model, data, visualize_workings)
+            #
+            #     print("early stop")
+            #     return val_loss, metrics
 
-                print("early stop")
-                return val_loss, metrics
+    return val_loss, metrics, np.mean(accuracy_record)
 
-    return val_loss, metrics
 
 def reshape_conv_embedding(embedding1):
     embedding1 = embedding1.view(-1, embedding1.shape[1] ** 2)
@@ -261,7 +272,7 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        val_loss, metrics = test_epoch(val_loader, model, loss_fn, cuda, metrics,
+        val_loss, metrics, accuracy = test_epoch(val_loader, model, loss_fn, cuda, metrics,
                                        visualize_workings, with_labels=True)
         val_loss /= len(val_loader)
 
@@ -271,5 +282,7 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
         print(message)
+
+        print("Validation Average Accuracy: " + str(accuracy))
 
 
