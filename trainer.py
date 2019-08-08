@@ -67,7 +67,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
     model.train()
     losses = []
-    accuracy_record = deque(maxlen=10)
+    # accuracy_record = deque(maxlen=10)
+    accuracy_record = []
     total_loss = 0
 
     for batch_idx, (data, targets) in enumerate(train_loader):
@@ -126,7 +127,7 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
                 message += '\t{}: {}'.format(metric.name(), metric.value())
 
             if with_labels:
-                print("Average Past 10 Batch Accuracy: " + str(np.mean(accuracy_record)))
+                print("Average Train Accuracy: " + str(np.mean(accuracy_record)))
 
             print(message)
             losses = []
