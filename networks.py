@@ -23,9 +23,11 @@ class ClassifierCNN(nn.Module):
         self.convnet = nn.Sequential(
             nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                       layer1_stride, layer1_padding),
+            nn.BatchNorm2d(layer1_output_channels),
             nn.LeakyReLU(),
             nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
                       layer2_stride, layer2_padding),
+            nn.BatchNorm2d(layer1_output_channels),
             nn.LeakyReLU(),
         )
 
