@@ -74,7 +74,7 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
 
 if cuda:
     model.cuda()
-loss_fn = nn.SmoothL1Loss()
+loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # learning rate decay over epochs

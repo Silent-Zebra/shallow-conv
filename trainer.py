@@ -81,9 +81,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         optimizer.zero_grad()
         outputs = model(*data)
 
-        if with_labels:
-            # Turn targets from number into a one-hot vector
-            targets = F.one_hot(targets, model.output_size).float()
+        # if with_labels:
+        #     # Turn targets from number into a one-hot vector
+        #     targets = F.one_hot(targets, model.output_size).float()
         if not with_labels:
             outputs, targets = reshape_outputs_and_create_labels(outputs)
 
@@ -93,7 +93,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
         predictions = torch.argmax(outputs, dim=1)
 
-        correct = predictions==torch.argmax(targets, dim=1)
+        # correct = predictions==torch.argmax(targets, dim=1)
+        correct = predictions==targets
 
         accuracy = float(sum(correct)) / float(len(correct))
 
@@ -162,9 +163,9 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
 
             outputs = model(*data)
 
-            if with_labels:
-                # Turn targets from number into a one-hot vector
-                targets = F.one_hot(targets, model.output_size).float()
+            # if with_labels:
+            #     # Turn targets from number into a one-hot vector
+            #     targets = F.one_hot(targets, model.output_size).float()
             if not with_labels:
                 outputs, targets = reshape_outputs_and_create_labels(outputs)
 

@@ -40,17 +40,17 @@ class ClassifierCNN(nn.Module):
                       layer1_stride, layer1_padding),
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
-            nn.LeakyReLU(),
+            nn.ELU(),
             nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
                       layer2_stride, layer2_padding),
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
-            nn.LeakyReLU(),
+            nn.ELU(),
             nn.Conv2d(layer1_output_channels, layer1_output_channels,
                       layer3_kernel_size,
                       layer3_stride, layer3_padding),
             nn.BatchNorm2d(layer1_output_channels),
-            nn.LeakyReLU(),
+            nn.ELU(),
         )
 
         hidden_units = 256
@@ -59,7 +59,8 @@ class ClassifierCNN(nn.Module):
             nn.Linear(layer3_output_size**2 * layer1_output_channels, hidden_units),
             nn.LeakyReLU(),
             nn.BatchNorm1d(hidden_units),
-            nn.Linear(hidden_units, output_size)
+            nn.Linear(hidden_units, output_size),
+            nn.Softmax(dim=1)
         )
 
         self.output_size = output_size
