@@ -10,7 +10,7 @@ batch_size = 128
 # margin for triplet loss function
 # margin = 1.
 
-n_epochs = 30
+n_epochs = 50
 # log every x batches
 log_interval = 20
 
@@ -38,6 +38,8 @@ import torch.nn as nn
 
 train_dataset = CIFAR100('./data/CIFAR100', train=True, download=True,
                              transform=transforms.Compose([
+                                 transforms.RandomCrop(32, padding=4),
+                                 transforms.RandomHorizontalFlip(),
                                  transforms.ToTensor(),
                              ]))
 test_dataset = CIFAR100('./data/CIFAR100', train=False, download=True,
