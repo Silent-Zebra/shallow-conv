@@ -31,7 +31,14 @@ class ClassifierCNN(nn.Module):
             nn.LeakyReLU(),
         )
 
-        self.fc = nn.Linear(layer2_output_size**2 * layer1_output_channels, output_size)
+        hidden_units = 512
+
+        self.fc = nn.Sequential(
+            nn.Linear(layer2_output_size**2 * layer1_output_channels, hidden_units),
+            nn.LeakyReLU(),
+            nn.BatchNorm1d(hidden_units),
+            nn.Linear(hidden_units, output_size)
+        )
 
         self.output_size = output_size
 
