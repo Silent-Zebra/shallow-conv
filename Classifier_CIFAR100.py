@@ -17,7 +17,7 @@ log_interval = 20
 # Convnet hyperparameters
 lr = 1e-3
 input_depth = 3
-layer1_stride = 1
+layer1_stride = 2
 layer1_kernel_size = 8
 layer1_output_channels = 64
 layer1_padding = 0
