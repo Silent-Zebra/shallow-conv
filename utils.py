@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 from itertools import combinations
 
+import pickle
+
 
 def generate_random_patch(image_tensor, patch_size):
     image_height = image_tensor.shape[1]
@@ -24,6 +26,21 @@ def visualize_image(image):
 
     plt.imshow(visual)
     plt.show()
+
+
+def save_image_visualization(image, filename):
+    with open(filename, 'ab') as file:
+        pickle.dump(image, file)
+
+
+def visualize_image_from_file(filename):
+    with open(filename, 'rb') as file:
+        while True:
+            try:
+                image = pickle.load(file)
+                visualize_image(image)
+            except (EOFError):
+                break
 
 
 def normalize_01(tensor):

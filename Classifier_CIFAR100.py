@@ -83,7 +83,13 @@ scheduler = lr_scheduler.StepLR(optimizer, 200, gamma=0.1, last_epoch=-1)
 
 fit_classifier(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
+
+filename = "visualization"
+# Reset
+open(filename, 'w').close()
+
 if visualize_filter:
     for filter in list(model.convnet.parameters())[0]:
         filter = utils.normalize_01(filter)
-        utils.visualize_image(filter.detach().numpy())
+        utils.save_image_visualization(filter.detach().cpu().numpy(), filename=filename)
+
