@@ -19,7 +19,7 @@ class ClassifierCNN(nn.Module):
         # after maxpool
         layer1_output_size = int((layer1_output_size - (maxpool_size - 1) - 1)/maxpool_stride) + 1
 
-        layer2_kernel_size = 3
+        layer2_kernel_size = 5
         layer2_stride = 1
         layer2_padding = 0
 
@@ -27,6 +27,16 @@ class ClassifierCNN(nn.Module):
         # after maxpool
         layer2_output_size = int(
             (layer2_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
+
+        layer3_kernel_size = 3
+        layer3_stride = 1
+        layer3_padding = 0
+
+        layer3_output_size = int((int(
+            layer2_output_size) - layer3_kernel_size + 2 * layer3_padding) / layer3_stride + 1)
+        # after maxpool
+        layer3_output_size = int(
+            (layer3_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
 
         self.convnet = nn.Sequential(
             nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
@@ -39,12 +49,18 @@ class ClassifierCNN(nn.Module):
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
             nn.LeakyReLU(),
+            nn.Conv2d(layer1_output_channels, layer1_output_channels,
+                      layer3_kernel_size,
+                      layer3_stride, layer3_padding),
+            nn.MaxPool2d(maxpool_size, maxpool_stride),
+            nn.BatchNorm2d(layer1_output_channels),
+            nn.LeakyReLU(),
         )
 
-        hidden_units = 512
+        hidden_units = 64
 
         self.fc = nn.Sequential(
-            nn.Linear(layer2_output_size**2 * layer1_output_channels, hidden_units),
+            nn.Linear(layer3_output_size**2 * layer1_output_channels, hidden_units),
             nn.LeakyReLU(),
             nn.BatchNorm1d(hidden_units),
             nn.Linear(hidden_units, output_size)
