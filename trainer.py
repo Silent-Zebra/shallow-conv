@@ -175,7 +175,7 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
 
             predictions = torch.argmax(outputs, dim=1)
 
-            correct = predictions == torch.argmax(targets, dim=1)
+            correct = predictions == targets
 
             accuracy = float(sum(correct)) / float(len(correct))
 
