@@ -12,21 +12,31 @@ class ClassifierCNN(nn.Module):
 
         self.num_filters = layer1_output_channels
 
+        maxpool_size = 2
+        maxpool_stride = maxpool_size
+
         layer1_output_size = int((int(input_size) - layer1_kernel_size + 2*layer1_padding) / layer1_stride + 1)
+        # after maxpool
+        layer1_output_size = int((layer1_output_size - (maxpool_size - 1) - 1)/maxpool_stride) + 1
 
         layer2_kernel_size = 3
         layer2_stride = 1
         layer2_padding = 0
 
         layer2_output_size = int((int(layer1_output_size) - layer2_kernel_size + 2*layer2_padding) / layer2_stride + 1)
+        # after maxpool
+        layer2_output_size = int(
+            (layer2_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
 
         self.convnet = nn.Sequential(
             nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                       layer1_stride, layer1_padding),
+            nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
             nn.LeakyReLU(),
             nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
                       layer2_stride, layer2_padding),
+            nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
             nn.LeakyReLU(),
         )
