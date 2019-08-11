@@ -121,6 +121,7 @@ class TripletNet(nn.Module):
     def get_embedding(self, x):
         return self.embedding_net(x)
 
+
 class OnlineTripletNet(nn.Module):
     def __init__(self, embedding_net):
         super(OnlineTripletNet, self).__init__()

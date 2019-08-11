@@ -91,14 +91,16 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
             if targets is not None:
                 targets = targets.cuda()
 
-        predictions = torch.argmax(outputs, dim=1)
 
-        # correct = predictions==torch.argmax(targets, dim=1)
-        correct = predictions==targets
+        if with_labels:
+            predictions = torch.argmax(outputs, dim=1)
 
-        accuracy = float(sum(correct)) / float(len(correct))
+            # correct = predictions==torch.argmax(targets, dim=1)
+            correct = predictions==targets
 
-        accuracy_record.append(accuracy)
+            accuracy = float(sum(correct)) / float(len(correct))
+
+            accuracy_record.append(accuracy)
 
         if type(outputs) not in (tuple, list):
             outputs = (outputs,)
@@ -173,13 +175,14 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
                 if targets is not None:
                     targets = targets.cuda()
 
-            predictions = torch.argmax(outputs, dim=1)
+            if with_labels:
+                predictions = torch.argmax(outputs, dim=1)
 
-            correct = predictions == targets
+                correct = predictions == targets
 
-            accuracy = float(sum(correct)) / float(len(correct))
+                accuracy = float(sum(correct)) / float(len(correct))
 
-            accuracy_record.append(accuracy)
+                accuracy_record.append(accuracy)
 
             if type(outputs) not in (tuple, list):
                 outputs = (outputs,)
@@ -203,7 +206,10 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
             #     print("early stop")
             #     return val_loss, metrics
 
-    return val_loss, metrics, np.mean(accuracy_record)
+    if with_labels:
+        return val_loss, metrics, np.mean(accuracy_record)
+    else:
+        return val_loss, metrics
 
 
 def reshape_conv_embedding(embedding1):

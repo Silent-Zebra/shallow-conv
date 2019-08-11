@@ -10,14 +10,14 @@ batch_size = 128
 # margin for triplet loss function
 margin = 1.
 
-n_epochs = 40
+n_epochs = 500
 # log every x batches
 log_interval = 20
 
 # Convnet hyperparameters
 lr = 1e-3
 input_depth = 3
-layer1_stride = 4
+layer1_stride = 1
 layer1_kernel_size = 8
 layer1_output_channels = 64
 layer1_padding = 0
@@ -77,9 +77,14 @@ optimizer = optim.Adam(model.parameters(), lr=lr)
 scheduler = lr_scheduler.StepLR(optimizer, 8, gamma=0.1, last_epoch=-1)
 
 
+filename = "visualization_unsupervised"
+# Reset
+open(filename, 'w').close()
+
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 if visualize_filter:
     for filter in list(model.embedding_net.convnet.parameters())[0]:
         filter = utils.normalize_01(filter)
-        utils.visualize_image(filter.detach().numpy())
+        utils.save_image_visualization(filter.detach().cpu().numpy(),
+                                       filename=filename)
