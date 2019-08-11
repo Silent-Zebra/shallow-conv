@@ -1,4 +1,5 @@
 # Source: https://github.com/adambielski/siamese-triplet
+import time
 
 import torch
 import numpy as np
@@ -72,6 +73,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
     total_loss = 0
 
     for batch_idx, (data, targets) in enumerate(train_loader):
+
+        # start_time = time.perf_counter()
+
         targets = targets if len(targets) > 0 else None
         if not type(data) in (tuple, list):
             data = (data,)
@@ -110,10 +114,15 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
             targets = (targets,)
             loss_inputs += targets
 
+        # elapsed_time = time.perf_counter() - start_time
+        # print(elapsed_time)
+
         loss_outputs = loss_fn(*loss_inputs)
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
         losses.append(loss.item())
 
+        # elapsed_time = time.perf_counter() - start_time
+        # print(elapsed_time)
 
         total_loss += loss.item()
         loss.backward()
@@ -142,6 +151,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         #     print("early stop")
         #     total_loss /= (batch_idx + 1)
         #     return total_loss, metrics
+
+        # elapsed_time = time.perf_counter() - start_time
+        # print(elapsed_time)
 
     total_loss /= (batch_idx + 1)
     return total_loss, metrics

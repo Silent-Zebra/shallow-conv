@@ -1,5 +1,6 @@
 # Adapted from https://github.com/adambielski/siamese-triplet
 import random
+import time
 
 import numpy as np
 import torch
@@ -124,6 +125,7 @@ class FunctionNegativeTripletSelector(TripletSelector):
         self.negative_selection_fn = negative_selection_fn
 
     def get_triplets(self, embeddings, labels):
+
         if self.cpu:
             embeddings = embeddings.cpu()
         distance_matrix = pdist(embeddings)

@@ -17,7 +17,7 @@ log_interval = 20
 # Convnet hyperparameters
 lr = 1e-3
 input_depth = 3
-layer1_stride = 1
+layer1_stride = 4
 layer1_kernel_size = 8
 layer1_output_channels = 64
 layer1_padding = 0
@@ -74,7 +74,7 @@ loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # learning rate decay over epochs
-scheduler = lr_scheduler.StepLR(optimizer, 8, gamma=0.1, last_epoch=-1)
+scheduler = lr_scheduler.StepLR(optimizer, 500, gamma=0.1, last_epoch=-1)
 
 
 filename = "visualization_unsupervised"

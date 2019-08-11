@@ -1,4 +1,5 @@
 # Source: https://github.com/adambielski/siamese-triplet
+import time
 
 import torch
 import torch.nn as nn
@@ -44,5 +45,6 @@ class OnlineTripletLoss(nn.Module):
         ap_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 1]]).pow(2).sum(1)  # .pow(.5)
         an_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 2]]).pow(2).sum(1)  # .pow(.5)
         losses = F.relu(ap_distances - an_distances + self.margin)
+
 
         return losses.mean(), len(triplets)
