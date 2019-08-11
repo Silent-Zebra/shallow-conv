@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 10
+downsampled_size = 9
 
 batch_size = 128
 
