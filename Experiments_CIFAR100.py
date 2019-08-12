@@ -10,7 +10,7 @@ batch_size = 128
 # margin for triplet loss function
 margin = 1.
 
-n_epochs = 500
+n_epochs = 1200
 # log every x batches
 log_interval = 20
 
@@ -74,7 +74,7 @@ loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # learning rate decay over epochs
-scheduler = lr_scheduler.StepLR(optimizer, 500, gamma=0.1, last_epoch=-1)
+scheduler = lr_scheduler.StepLR(optimizer, 1000, gamma=0.1, last_epoch=-1)
 
 
 filename = "visualization_unsupervised"
