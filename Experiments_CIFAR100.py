@@ -76,12 +76,11 @@ optimizer = optim.Adam(model.parameters(), lr=lr)
 # learning rate decay over epochs
 scheduler = lr_scheduler.StepLR(optimizer, 1000, gamma=0.1, last_epoch=-1)
 
+fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 filename = "visualization_unsupervised"
 # Reset
 open(filename, 'w').close()
-
-fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 if visualize_filter:
     for filter in list(model.embedding_net.convnet.parameters())[0]:
