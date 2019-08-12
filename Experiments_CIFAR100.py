@@ -3,6 +3,8 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
+import pickle
+
 downsampled_size = 9
 
 batch_size = 128
@@ -10,7 +12,7 @@ batch_size = 128
 # margin for triplet loss function
 margin = 1.
 
-n_epochs = 1200
+n_epochs = 1
 # log every x batches
 log_interval = 20
 
@@ -79,13 +81,17 @@ scheduler = lr_scheduler.StepLR(optimizer, 1000, gamma=0.1, last_epoch=-1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 if visualize_filter:
-    filename = "visualization_unsupervised"
+    visualization_filename = "visualization_unsupervised"
     # Reset
-    open(filename, 'w').close()
+    open(visualization_filename, 'w').close()
 
     for filter in list(model.embedding_net.convnet.parameters())[0]:
         filter = utils.normalize_01(filter)
         utils.save_image_visualization(filter.detach().cpu().numpy(),
-                                       filename=filename)
+                                       filename=visualization_filename)
 
     # utils.visualize_image_from_file(filename)
+
+model_filename = "model_unsupervised"
+with open(model_filename, 'wb') as file:
+    pickle.dump(model, file)
