@@ -1,5 +1,5 @@
 import utils
 
-filename = "visualization_unsupervised_9size_1stride"
+filename = "visualization_unsupervised"
 
 utils.visualize_image_from_file(filename)
