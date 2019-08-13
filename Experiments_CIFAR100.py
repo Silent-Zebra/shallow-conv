@@ -12,7 +12,7 @@ batch_size = 128
 # margin for triplet loss function
 margin = 1.
 
-n_epochs = 1200
+n_epochs = 1
 # log every x batches
 log_interval = 20
 
@@ -92,6 +92,6 @@ if visualize_filter:
 
     # utils.visualize_image_from_file(filename)
 
-model_filename = "model_unsupervised"
-with open(model_filename, 'wb') as file:
-    pickle.dump(model, file)
+# model_filename = "model_unsupervised"
+
+torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised.pt')
