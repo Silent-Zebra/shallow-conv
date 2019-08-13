@@ -131,6 +131,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         for metric in metrics:
             metric(outputs, targets, loss_outputs)
 
+        # for parameter in model.convnet[0].parameters():
+        #     print(parameter)
+
         if batch_idx % log_interval == 0:
             message = 'Train: [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 batch_idx * len(data[0]), len(train_loader.dataset),

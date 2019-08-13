@@ -78,7 +78,8 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
 # else:
 model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
 # Freeze weights of that layer
-model.convnet[0].requires_grad = False
+for param in model.convnet[0].parameters():
+    param.requires_grad = False
 
 if cuda:
     model.cuda()
