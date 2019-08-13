@@ -5,6 +5,8 @@
 # image size to downsample to
 # downsampled_size = 16
 
+random_features = False
+
 batch_size = 128
 
 # margin for triplet loss function
@@ -76,7 +78,8 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
 # if cuda:
 #     model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt"))
 # else:
-model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
+if not random_features:
+    model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
 # Freeze weights of that layer
 for param in model.convnet[0].parameters():
     param.requires_grad = False
