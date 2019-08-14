@@ -1,6 +1,5 @@
 # Adapted from https://github.com/adambielski/siamese-triplet
 import random
-import time
 
 import numpy as np
 import torch
@@ -146,20 +145,19 @@ class FunctionNegativeTripletSelector(TripletSelector):
 
             label_mask = (labels == label)
             label_indices = np.where(label_mask)[0]
-            # if len(label_indices) < 2:
-            #     continue
+
             negative_indices = np.where(np.logical_not(label_mask))[0]
             anchor_positives = list(combinations(label_indices, 2))  # All anchor-positive pairs
-            # anchor_positives = random.choice(anchor_positives) # Select a specific pair
             anchor_positives = np.array(anchor_positives)
 
             ap_distances = distance_matrix[anchor_positives[:, 0], anchor_positives[:, 1]]
 
             # Select a random pair instead of doing all positive combinations
             rand_index = random.randint(0, len(ap_distances) - 1)
-            # for anchor_positive, ap_distance in zip(anchor_positives, ap_distances):
+
             anchor_positive = anchor_positives[rand_index]
             ap_distance = ap_distances[rand_index]
+
             # Calculate loss on the embeddings
             loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
             loss_values = loss_values.data.cpu().numpy()

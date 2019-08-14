@@ -90,8 +90,5 @@ if visualize_filter:
         utils.save_image_visualization(filter.detach().cpu().numpy(),
                                        filename=visualization_filename)
 
-    # utils.visualize_image_from_file(filename)
-
-# model_filename = "model_unsupervised"
 
 torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised.pt')

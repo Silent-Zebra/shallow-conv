@@ -68,13 +68,10 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
     model.train()
     losses = []
-    # accuracy_record = deque(maxlen=10)
     accuracy_record = []
     total_loss = 0
 
     for batch_idx, (data, targets) in enumerate(train_loader):
-
-        # start_time = time.perf_counter()
 
         targets = targets if len(targets) > 0 else None
         if not type(data) in (tuple, list):
@@ -85,9 +82,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         optimizer.zero_grad()
         outputs = model(*data)
 
-        # if with_labels:
-        #     # Turn targets from number into a one-hot vector
-        #     targets = F.one_hot(targets, model.output_size).float()
         if not with_labels:
             outputs, targets = reshape_outputs_and_create_labels(outputs)
 
@@ -114,15 +108,9 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
             targets = (targets,)
             loss_inputs += targets
 
-        # elapsed_time = time.perf_counter() - start_time
-        # print(elapsed_time)
-
         loss_outputs = loss_fn(*loss_inputs)
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
         losses.append(loss.item())
-
-        # elapsed_time = time.perf_counter() - start_time
-        # print(elapsed_time)
 
         total_loss += loss.item()
         loss.backward()
@@ -149,15 +137,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
             visualize_difference(model, data, visualize_workings)
 
-        # early_stop = 20000
-        # if batch_idx* len(data[0]) > early_stop:
-        #     print("early stop")
-        #     total_loss /= (batch_idx + 1)
-        #     return total_loss, metrics
-
-        # elapsed_time = time.perf_counter() - start_time
-        # print(elapsed_time)
-
     total_loss /= (batch_idx + 1)
     return total_loss, metrics
 
@@ -180,9 +159,6 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
 
             outputs = model(*data)
 
-            # if with_labels:
-            #     # Turn targets from number into a one-hot vector
-            #     targets = F.one_hot(targets, model.output_size).float()
             if not with_labels:
                 outputs, targets = reshape_outputs_and_create_labels(outputs)
 
@@ -213,13 +189,6 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
 
             for metric in metrics:
                 metric(outputs, targets, loss_outputs)
-
-            # early_stop = 5000
-            # if batch_idx * len(data[0]) > early_stop:
-            #     visualize_difference(model, data, visualize_workings)
-            #
-            #     print("early stop")
-            #     return val_loss, metrics
 
     if with_labels:
         return val_loss, metrics, np.mean(accuracy_record)

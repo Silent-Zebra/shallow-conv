@@ -75,9 +75,6 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
                         output_size=output_size)
 
 # Load 1 conv layer
-# if cuda:
-#     model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt"))
-# else:
 if not random_features:
     model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
 # Freeze weights of that layer
