@@ -30,7 +30,7 @@ visualize_filter = True
 visualize_model_working = 0
 
 
-from torchvision.datasets import CIFAR100
+from torchvision.datasets import CIFAR10
 from torchvision import transforms
 import utils
 # from datasets import DownsampledCIFAR100
@@ -38,13 +38,13 @@ import torch
 import torch.nn as nn
 
 
-train_dataset = CIFAR100('./data/CIFAR100', train=True, download=True,
+train_dataset = CIFAR10('./data/CIFAR10', train=True, download=True,
                              transform=transforms.Compose([
                                  transforms.RandomCrop(32, padding=4),
                                  transforms.RandomHorizontalFlip(),
                                  transforms.ToTensor(),
                              ]))
-test_dataset = CIFAR100('./data/CIFAR100', train=False, download=True,
+test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
                             transform=transforms.Compose([
                                 transforms.ToTensor(),
                             ]))

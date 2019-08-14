@@ -5,8 +5,6 @@
 # image size to downsample to
 # downsampled_size = 16
 
-random_features = True
-
 batch_size = 128
 
 # margin for triplet loss function
@@ -30,7 +28,7 @@ visualize_filter = True
 visualize_model_working = 0
 
 
-from torchvision.datasets import CIFAR100
+from torchvision.datasets import CIFAR10
 from torchvision import transforms
 import utils
 # from datasets import DownsampledCIFAR100
@@ -38,13 +36,13 @@ import torch
 import torch.nn as nn
 
 
-train_dataset = CIFAR100('./data/CIFAR100', train=True, download=True,
+train_dataset = CIFAR10('./data/CIFAR10', train=True, download=True,
                              transform=transforms.Compose([
                                  transforms.RandomCrop(32, padding=4),
                                  transforms.RandomHorizontalFlip(),
                                  transforms.ToTensor(),
                              ]))
-test_dataset = CIFAR100('./data/CIFAR100', train=False, download=True,
+test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
                             transform=transforms.Compose([
                                 transforms.ToTensor(),
                             ]))
@@ -74,16 +72,6 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
                         layer1_padding=layer1_padding,
                         output_size=output_size)
 
-# Load 1 conv layer
-# if cuda:
-#     model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt"))
-# else:
-if not random_features:
-    model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
-# Freeze weights of that layer
-for param in model.convnet[0].parameters():
-    param.requires_grad = False
-
 if cuda:
     model.cuda()
 loss_fn = nn.CrossEntropyLoss()
@@ -93,3 +81,13 @@ optimizer = optim.Adam(model.parameters(), lr=lr)
 scheduler = lr_scheduler.StepLR(optimizer, 500, gamma=0.1, last_epoch=-1)
 
 fit_classifier(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
+
+if visualize_filter:
+    filename = "visualization_CIFAR10"
+    # Reset
+    open(filename, 'w').close()
+
+    for filter in list(model.convnet.parameters())[0]:
+        filter = utils.normalize_01(filter)
+        utils.save_image_visualization(filter.detach().cpu().numpy(), filename=filename)
+
