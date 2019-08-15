@@ -5,7 +5,7 @@
 # image size to downsample to
 # downsampled_size = 16
 
-random_features = True
+random_features = False
 
 batch_size = 128
 
