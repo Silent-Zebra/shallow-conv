@@ -2,16 +2,10 @@
 
 # --- HYPERPARAMETERS ---
 
-# image size to downsample to
-# downsampled_size = 16
-
-load_supervised = True
 random_features = False
+load_supervised = False
 
 batch_size = 128
-
-# margin for triplet loss function
-# margin = 1.
 
 n_epochs = 500
 # log every x batches
@@ -25,8 +19,6 @@ layer1_kernel_size = 8
 layer1_output_channels = 64
 layer1_padding = 0
 
-visualize_filter = True
-
 # Number of examples to visualize and see how the network embeds
 visualize_model_working = 0
 
@@ -34,7 +26,6 @@ visualize_model_working = 0
 from torchvision.datasets import CIFAR10
 from torchvision import transforms
 import utils
-# from datasets import DownsampledCIFAR100
 import torch
 import torch.nn as nn
 
