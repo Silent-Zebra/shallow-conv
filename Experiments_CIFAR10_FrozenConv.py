@@ -5,6 +5,7 @@
 # image size to downsample to
 # downsampled_size = 16
 
+load_supervised = True
 random_features = False
 
 batch_size = 128
@@ -76,7 +77,12 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
 
 # Load 1 conv layer
 if not random_features:
-    model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
+    if load_supervised:
+        trained_model = torch.load("model_supervised.pt", map_location="cpu")
+        model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
+    else:
+        model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
+
 # Freeze weights of that layer
 for param in model.convnet[0].parameters():
     param.requires_grad = False
