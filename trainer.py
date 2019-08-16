@@ -6,7 +6,7 @@ import numpy as np
 import utils
 import torch.nn.functional as F
 
-from collections import deque
+from torch.utils.tensorboard import SummaryWriter
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
         start_epoch=0, visualize_workings=0, val_loss_fn=None):
@@ -21,7 +21,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
     """
     if val_loss_fn is None:
       val_loss_fn = loss_fn
-      
+
     for epoch in range(0, start_epoch):
         scheduler.step()
 
@@ -253,6 +253,9 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
     Siamese network: Siamese loader, siamese model, contrastive loss
     Online triplet learning: batch loader, embedding model, online triplet loss
     """
+
+    writer = SummaryWriter()
+
     for epoch in range(0, start_epoch):
         scheduler.step()
 
@@ -280,4 +283,6 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
 
         print("Validation Average Accuracy: " + str(accuracy))
 
+        writer.add_scalar("Validation Average Accuracy", accuracy, epoch)
 
+    writer.close()

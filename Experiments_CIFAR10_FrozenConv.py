@@ -4,6 +4,7 @@
 
 random_features = False
 load_supervised = False
+freeze_layers = False
 
 batch_size = 128
 
@@ -21,6 +22,8 @@ layer1_padding = 0
 
 # Number of examples to visualize and see how the network embeds
 visualize_model_working = 0
+
+
 
 
 from torchvision.datasets import CIFAR10
@@ -72,11 +75,12 @@ if not random_features:
         trained_model = torch.load("model_supervised.pt", map_location="cpu")
         model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
     else:
-        model.convnet[0].load_state_dict(torch.load("model_unsupervised.pt", map_location="cpu"))
+        model.convnet[0].load_state_dict(torch.load("model_unsupervised_Aug15.pt", map_location="cpu"))
 
 # Freeze weights of that layer
-for param in model.convnet[0].parameters():
-    param.requires_grad = False
+if freeze_layers:
+    for param in model.convnet[0].parameters():
+        param.requires_grad = False
 
 if cuda:
     model.cuda()
@@ -87,3 +91,4 @@ optimizer = optim.Adam(model.parameters(), lr=lr)
 scheduler = lr_scheduler.StepLR(optimizer, 500, gamma=0.1, last_epoch=-1)
 
 fit_classifier(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
+

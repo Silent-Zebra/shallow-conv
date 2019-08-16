@@ -63,7 +63,9 @@ def visualize_image_from_file2(filename):
         except (EOFError):
           break
 
-    fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
+    # fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
+    fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (16,16))
+
 
     for i, ax in enumerate(axes.flatten()):
       if i < len(images):
@@ -74,7 +76,7 @@ def visualize_image_from_file2(filename):
 
     fig.tight_layout()
     plt.show()
- 
+
 
 def normalize_01(tensor):
     return tensor / torch.max(torch.abs(tensor)) / 2 + 0.5
@@ -204,7 +206,7 @@ class FunctionNegativeTripletSelector(TripletSelector):
             #     triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
 
 
-            
+
             label_mask = (labels == label)
             label_indices = np.where(label_mask)[0]
             if len(label_indices) < 2:
