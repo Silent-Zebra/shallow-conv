@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from collections import deque
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-        start_epoch=0, visualize_workings=0):
+        start_epoch=0, visualize_workings=0, val_loss_fn=None):
     """
     Loaders, model, loss function and metrics should work together for a given task,
     i.e. The model should be able to process data output of loaders,
@@ -19,6 +19,9 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
     Siamese network: Siamese loader, siamese model, contrastive loss
     Online triplet learning: batch loader, embedding model, online triplet loss
     """
+    if val_loss_fn is None:
+      val_loss_fn = loss_fn
+      
     for epoch in range(0, start_epoch):
         scheduler.step()
 
@@ -32,7 +35,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        val_loss, metrics = test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings)
+        val_loss, metrics = test_epoch(val_loader, model, val_loss_fn, cuda, metrics, visualize_workings)
         val_loss /= len(val_loader)
 
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
@@ -46,7 +49,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
 def reshape_outputs_and_create_labels(outputs):
     outputs = outputs.view(
         (outputs.shape[0], outputs.shape[1],
-         outputs.shape[2] ** 2)).permute(0, 2, 1).contiguous()
+         outputs.shape[2] * outputs.shape[3])).permute(0, 2, 1).contiguous()
 
     end = outputs.shape[0] * outputs.shape[1]
     targets = torch.arange(0, end=end) / outputs.shape[1]

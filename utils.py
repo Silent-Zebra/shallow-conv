@@ -23,8 +23,10 @@ def generate_random_patch(image_tensor, patch_size):
 
 def visualize_image(image):
     visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
-
+    plt.figure(figsize=(1,1))
     plt.imshow(visual)
+    plt.axis('off')
+    plt.tight_layout()
     plt.show()
 
 
@@ -42,6 +44,37 @@ def visualize_image_from_file(filename):
             except (EOFError):
                 break
 
+
+
+def visualize_image2(image):
+    visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
+    plt.figure(figsize=(1,1))
+    plt.imshow(visual)
+    plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+def visualize_image_from_file2(filename):
+    with open(filename, 'rb') as file:
+      images = []
+      while True:
+        try:
+          images.append(pickle.load(file))
+        except (EOFError):
+          break
+
+    fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
+
+    for i, ax in enumerate(axes.flatten()):
+      if i < len(images):
+        image = images[i]
+        visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
+        ax.imshow(visual)
+      ax.axis('off')
+
+    fig.tight_layout()
+    plt.show()
+ 
 
 def normalize_01(tensor):
     return tensor / torch.max(torch.abs(tensor)) / 2 + 0.5
@@ -103,6 +136,10 @@ def random_hard_negative(loss_values):
     hard_negatives = np.where(loss_values > 0)[0]
     return np.random.choice(hard_negatives) if len(hard_negatives) > 0 else None
 
+def random_selection(loss_values):
+    hard_negatives = np.where(loss_values > -np.inf)[0]
+    return np.random.choice(hard_negatives) if len(hard_negatives) > 0 else None
+
 
 def semihard_negative(loss_values, margin):
     semihard_negatives = np.where(np.logical_and(loss_values < margin, loss_values > 0))[0]
@@ -135,36 +172,55 @@ class FunctionNegativeTripletSelector(TripletSelector):
 
         last_label = None
 
-        for label in list(labels):
+        for label in set(list(labels.flatten())):
             # Ensure only one iteration through each downsampled image to avoid
             # sample correlation
-            if label == last_label:
-                continue
-            else:
-                last_label = label
+            # if label == last_label:
+            #     continue
+            # else:
+            #     last_label = label
 
+            # label_mask = (labels == label)
+            # label_indices = np.where(label_mask)[0]
+
+            # negative_indices = np.where(np.logical_not(label_mask))[0]
+            # anchor_positives = list(combinations(label_indices, 2))  # All anchor-positive pairs
+            # anchor_positives = np.array(anchor_positives)
+
+            # ap_distances = distance_matrix[anchor_positives[:, 0], anchor_positives[:, 1]]
+
+            # # Select a random pair instead of doing all positive combinations
+            # rand_index = random.randint(0, len(ap_distances) - 1)
+
+            # anchor_positive = anchor_positives[rand_index]
+            # ap_distance = ap_distances[rand_index]
+
+            # # Calculate loss on the embeddings
+            # loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
+            # loss_values = loss_values.data.cpu().numpy()
+            # hard_negative = self.negative_selection_fn(loss_values)
+            # if hard_negative is not None:
+            #     hard_negative = negative_indices[hard_negative]
+            #     triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
+
+
+            
             label_mask = (labels == label)
             label_indices = np.where(label_mask)[0]
-
+            if len(label_indices) < 2:
+                continue
             negative_indices = np.where(np.logical_not(label_mask))[0]
             anchor_positives = list(combinations(label_indices, 2))  # All anchor-positive pairs
             anchor_positives = np.array(anchor_positives)
 
             ap_distances = distance_matrix[anchor_positives[:, 0], anchor_positives[:, 1]]
-
-            # Select a random pair instead of doing all positive combinations
-            rand_index = random.randint(0, len(ap_distances) - 1)
-
-            anchor_positive = anchor_positives[rand_index]
-            ap_distance = ap_distances[rand_index]
-
-            # Calculate loss on the embeddings
-            loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
-            loss_values = loss_values.data.cpu().numpy()
-            hard_negative = self.negative_selection_fn(loss_values)
-            if hard_negative is not None:
-                hard_negative = negative_indices[hard_negative]
-                triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
+            for anchor_positive, ap_distance in zip(anchor_positives, ap_distances):
+                loss_values = ap_distance - distance_matrix[torch.LongTensor(np.array([anchor_positive[0]])), torch.LongTensor(negative_indices)] + self.margin
+                loss_values = loss_values.data.cpu().numpy()
+                hard_negative = self.negative_selection_fn(loss_values)
+                if hard_negative is not None:
+                    hard_negative = negative_indices[hard_negative]
+                    triplets.append([anchor_positive[0], anchor_positive[1], hard_negative])
 
         if len(triplets) == 0:
             triplets.append([anchor_positive[0], anchor_positive[1], negative_indices[0]])
@@ -185,6 +241,10 @@ def RandomNegativeTripletSelector(margin, cpu=False):
                                            negative_selection_fn=random_hard_negative,
                                            cpu=cpu)
 
+def RandomTripletSelector(margin, cpu=False):
+    return FunctionNegativeTripletSelector(margin=margin,
+                                           negative_selection_fn=random_selection,
+                                           cpu=cpu)
 
 def SemihardNegativeTripletSelector(margin, cpu=False):
     return FunctionNegativeTripletSelector(margin=margin,

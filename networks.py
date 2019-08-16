@@ -88,16 +88,22 @@ class ClassifierCNN(nn.Module):
 
 class EmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0):
+                 layer1_output_channels, layer1_padding=0, use_relu=True):
         super(EmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
 
-        self.convnet = nn.Sequential(
-            nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
-                      layer1_stride, layer1_padding),
-            # nn.LeakyReLU()
-        )
+        if use_relu:
+          self.convnet = nn.Sequential(
+              nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
+                        layer1_stride, layer1_padding),
+              nn.ReLU()
+          )
+        else:
+          self.convnet = nn.Sequential(
+              nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
+                        layer1_stride, layer1_padding)
+          )
 
     def forward(self, x):
         output = self.convnet(x)
