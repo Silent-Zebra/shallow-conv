@@ -98,6 +98,7 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
             # correct = predictions==torch.argmax(targets, dim=1)
             correct = predictions==targets
+            correct = correct.float()
 
             accuracy = float(sum(correct)) / float(len(correct))
 
@@ -173,6 +174,7 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
                 predictions = torch.argmax(outputs, dim=1)
 
                 correct = predictions == targets
+                correct = correct.float()
 
                 accuracy = float(sum(correct)) / float(len(correct))
 
@@ -278,7 +280,7 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
                                                                                  val_loss)
         for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value()) 
+            message += '\t{}: {}'.format(metric.name(), metric.value())
 
         print(message)
 

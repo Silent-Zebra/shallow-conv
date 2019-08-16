@@ -60,7 +60,7 @@ from networks import EmbeddingNet, TripletNet, OnlineTripletNet, ClassifierCNN
 inputs, classes = next(iter(train_loader))
 
 input_size = inputs.shape[2]
-output_size = 100
+output_size = 10
 
 model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
                         layer1_stride=layer1_stride,
