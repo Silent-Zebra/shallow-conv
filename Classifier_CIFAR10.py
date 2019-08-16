@@ -12,7 +12,7 @@ batch_size = 128
 
 n_epochs = 500
 # log every x batches
-log_interval = 20
+log_interval = 100
 
 # Convnet hyperparameters
 lr = 1e-3
