@@ -260,7 +260,6 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
         scheduler.step()
 
     for epoch in range(start_epoch, n_epochs):
-        scheduler.step()
 
         # Train stage
         train_loss, metrics = train_epoch(train_loader, model, loss_fn, optimizer,
@@ -273,6 +272,8 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
         val_loss, metrics, accuracy = test_epoch(val_loader, model, loss_fn, cuda, metrics,
                                        visualize_workings, with_labels=True)
         val_loss /= len(val_loader)
+
+        scheduler.step()
 
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
                                                                                  val_loss)
