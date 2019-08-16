@@ -278,7 +278,7 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
         message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
                                                                                  val_loss)
         for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
+            message += '\t{}: {}'.format(metric.name(), metric.value()) 
 
         print(message)
 
