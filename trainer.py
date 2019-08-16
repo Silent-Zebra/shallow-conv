@@ -283,6 +283,6 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
 
         print("Validation Average Accuracy: " + str(accuracy))
 
-        writer.add_scalar("Validation Average Accuracy", accuracy, epoch)
+        writer.add_scalar("Validation Average Accuracy", accuracy, epoch + 1)
 
     writer.close()
