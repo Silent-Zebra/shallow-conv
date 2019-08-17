@@ -4,7 +4,7 @@
 
 random_features = False
 load_supervised = False
-freeze_layers = False
+freeze_layers = True
 
 batch_size = 128
 
