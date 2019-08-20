@@ -10,9 +10,9 @@ downsampled_size = 9
 batch_size = 128
 
 # margin for triplet loss function
-margin = 1.
+margin = 2.
 
-n_epochs = 1200
+n_epochs = 800
 # log every x batches
 log_interval = 20
 

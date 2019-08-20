@@ -46,14 +46,32 @@ class OnlineTripletLoss(nn.Module):
         ap_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 1]]).sum(dim=1)
         an_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 2]]).sum(dim=1)
 
-        ap_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.ones_like(ap_distances))
-        an_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.zeros_like(an_distances))
+        distances = torch.cat((ap_distances, an_distances))
+        targets = torch.cat((torch.ones_like(ap_distances), (torch.zeros_like(an_distances))))
 
-        loss = ap_loss + an_loss
+        # ap_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.ones_like(ap_distances))
+        # an_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.zeros_like(an_distances))
+        #
+        # # print("distance")
+        # # print(torch.mean(ap_distances))
+        # # print(torch.mean(an_distances))
+        # #
+        # print("loss")
+        # print(ap_loss)
+        # print(an_loss)
+        #
+        # loss = ap_loss + an_loss
+
+        loss = F.binary_cross_entropy_with_logits(distances, targets)
+
 
         # ap_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 1]]).pow(2).sum(1)  # .pow(.5)
         # an_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 2]]).pow(2).sum(1)  # .pow(.5)
         # losses = F.relu(ap_distances - an_distances + self.margin)
-
+        #
+        # print(ap_distances.mean())
+        # print(an_distances.mean())
+        #
         # return losses.mean(), len(triplets)
+
         return loss, len(triplets)
