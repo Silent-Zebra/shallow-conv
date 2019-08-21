@@ -83,16 +83,6 @@ def normalize_01(tensor):
 
 
 def pdist(vectors):
-    a0 = vectors
-    a1 = torch.t(vectors)
-    a = -2 * vectors.mm(torch.t(vectors))
-    b0 = vectors.pow(2)
-    b = vectors.pow(2).sum(dim=1).view(1, -1)
-    c = vectors.pow(2).sum(dim=1).view(-1, 1)
-    d = a + b
-    d1 = a + c
-    d2 = a+b+c
-
     distance_matrix = -2 * vectors.mm(torch.t(vectors)) + vectors.pow(2).sum(dim=1).view(1, -1) + vectors.pow(2).sum(
         dim=1).view(-1, 1)
     return distance_matrix
