@@ -7,17 +7,17 @@ import pickle
 
 downsampled_size = 9
 
-batch_size = 1000
+batch_size = 256
 
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 80
+n_epochs = 500
 # log every x batches
 log_interval = 10
 
 # Convnet hyperparameters
-lr = 1e-4
+lr = 1e-3
 input_depth = 3
 layer1_stride = 1
 layer1_kernel_size = 8
