@@ -95,7 +95,10 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         outputs = model(*data)
 
         if not with_labels:
-            outputs, targets = reshape_outputs_and_create_labels_conv(outputs, patch_num_dim=model.patch_num_dim)
+            try:
+                outputs, targets = reshape_outputs_and_create_labels_conv(outputs, patch_num_dim=model.patch_num_dim)
+            except AttributeError:
+                outputs, targets = reshape_outputs_and_create_labels(outputs)
 
         if cuda:
             if targets is not None:
@@ -173,8 +176,12 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
             outputs = model(*data)
 
             if not with_labels:
-                outputs, targets = reshape_outputs_and_create_labels_conv(outputs, patch_num_dim=model.patch_num_dim)
-
+                try:
+                    outputs, targets = reshape_outputs_and_create_labels_conv(
+                        outputs, patch_num_dim=model.patch_num_dim)
+                except AttributeError:
+                    outputs, targets = reshape_outputs_and_create_labels(
+                        outputs)
             if cuda:
                 if targets is not None:
                     targets = targets.cuda()
