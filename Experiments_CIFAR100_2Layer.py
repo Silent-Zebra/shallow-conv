@@ -3,22 +3,19 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 16
+downsampled_size = 9
 
-batch_size = 512
+batch_size = 1000
 
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 100
+n_epochs = 0
 # log every x batches
 log_interval = 10
 
-patch_size = 14
-patch_stride = 2
-
 # Convnet hyperparameters
-lr = 1e-3 / 2
+lr = 1e-4
 input_depth = 3
 layer1_stride = 1
 layer1_kernel_size = 8
@@ -35,6 +32,7 @@ visualize_model_working = 0
 from torchvision.datasets import CIFAR100
 from torchvision import transforms
 import utils
+from datasets import DownsampledCIFAR100
 import torch
 
 train_dataset = CIFAR100('./data/CIFAR100', train=True, download=True,
@@ -60,19 +58,19 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 from torch.optim import lr_scheduler
 import torch.optim as optim
 from trainer import fit
-from networks import EmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet
+from networks import TwoLayerEmbeddingNet, TripletNet, OnlineTripletNet
 from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
-embedding_net = EmbeddingNet(input_depth=input_depth,
+embedding_net = TwoLayerEmbeddingNet(input_size = downsampled_size,
+                             input_depth=input_depth,
                              layer1_stride=layer1_stride,
                              layer1_kernel_size=layer1_kernel_size,
                              layer1_output_channels=layer1_output_channels,
                              layer1_padding=layer1_padding,
                              use_relu=use_relu)
-model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
-                         patch_stride=patch_stride, input_size=downsampled_size)
+model = OnlineTripletNet(embedding_net)
 if cuda:
     model.cuda()
 loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
@@ -86,14 +84,21 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised_1l"
+    visualization_filename = "visualization_unsupervised_2layer"
     # Reset
     open(visualization_filename, 'w').close()
 
-    for filter in list(model.embedding_net.convnet.parameters())[0]:
-        filter = utils.normalize_01(filter)
-        utils.save_image_visualization(filter.detach().cpu().numpy(),
-                                       filename=visualization_filename)
+    for layer in model.embedding_net.convnet:
+        if isinstance(layer, torch.nn.Conv2d):
+            for filter in layer.weight:
+                filter = utils.normalize_01(filter)
+                utils.save_image_visualization(filter.detach().cpu().numpy(),
+                                               filename=visualization_filename)
+
+    # for filter in list(model.embedding_net.convnet.parameters())[0]:
+    #     filter = utils.normalize_01(filter)
+    #     utils.save_image_visualization(filter.detach().cpu().numpy(),
+    #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised_1l.pt')
+torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2layer.pt')
