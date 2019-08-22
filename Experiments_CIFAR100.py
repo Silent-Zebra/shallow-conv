@@ -3,9 +3,9 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 9
+downsampled_size = 5
 
-batch_size = 1000
+batch_size = 512
 
 # margin for triplet loss function
 margin = 2.
@@ -15,11 +15,11 @@ n_epochs = 80
 log_interval = 10
 
 # Convnet hyperparameters
-lr = 1e-4
+lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
-layer1_output_channels = 64
+layer1_kernel_size = 4
+layer1_output_channels = 2048
 layer1_padding = 0
 use_relu = True
 
@@ -83,7 +83,7 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised3"
+    visualization_filename = "visualization_unsupervised4x4"
     # Reset
     open(visualization_filename, 'w').close()
 
@@ -93,4 +93,4 @@ if visualize_filter:
                                        filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised3.pt')
+torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised4x4.pt')
