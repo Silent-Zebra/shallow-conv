@@ -22,7 +22,7 @@ lr = 1e-3
 input_depth = 3
 layer1_stride = 1
 layer1_kernel_size = 6
-layer1_output_channels = 64
+layer1_output_channels = 256
 layer1_padding = 0
 use_relu = True
 
