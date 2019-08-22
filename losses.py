@@ -42,36 +42,22 @@ class OnlineTripletLoss(nn.Module):
         if embeddings.is_cuda:
             triplets = triplets.cuda()
 
-        # Dot product using element wise multiplication
-        ap_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 1]]).sum(dim=1)
-        an_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 2]]).sum(dim=1)
-
-        distances = torch.cat((ap_distances, an_distances))
-        targets = torch.cat((torch.ones_like(ap_distances), (torch.zeros_like(an_distances))))
-
-        # ap_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.ones_like(ap_distances))
-        # an_loss = F.binary_cross_entropy_with_logits(ap_distances, torch.zeros_like(an_distances))
+        # # Dot product using element wise multiplication
+        # ap_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 1]]).sum(dim=1)
+        # an_distances = (embeddings[triplets[:, 0]] * embeddings[triplets[:, 2]]).sum(dim=1)
         #
-        # # print("distance")
-        # # print(torch.mean(ap_distances))
-        # # print(torch.mean(an_distances))
-        # #
-        # print("loss")
-        # print(ap_loss)
-        # print(an_loss)
+        # distances = torch.cat((ap_distances, an_distances))
+        # targets = torch.cat((torch.ones_like(ap_distances), (torch.zeros_like(an_distances))))
         #
-        # loss = ap_loss + an_loss
+        # loss = F.binary_cross_entropy_with_logits(distances, targets)
 
-        loss = F.binary_cross_entropy_with_logits(distances, targets)
-
-
-        # ap_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 1]]).pow(2).sum(1)  # .pow(.5)
-        # an_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 2]]).pow(2).sum(1)  # .pow(.5)
-        # losses = F.relu(ap_distances - an_distances + self.margin)
+        ap_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 1]]).pow(2).sum(1)  # .pow(.5)
+        an_distances = (embeddings[triplets[:, 0]] - embeddings[triplets[:, 2]]).pow(2).sum(1)  # .pow(.5)
+        losses = F.relu(ap_distances - an_distances + self.margin)
         #
         # print(ap_distances.mean())
         # print(an_distances.mean())
         #
-        # return losses.mean(), len(triplets)
+        return losses.mean(), len(triplets)
 
-        return loss, len(triplets)
+        # return loss, len(triplets)

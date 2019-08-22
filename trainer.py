@@ -60,6 +60,15 @@ def reshape_outputs_and_create_labels(outputs):
 
     return outputs, targets
 
+def reshape_outputs_and_create_labels_conv(outputs, patch_num_dim):
+    # patch_num_dim is the same as in networks: 2 implies 2x2 = 4 "neighbours"
+    outputs = outputs.view(outputs.shape[0], outputs.shape[1] * outputs.shape[2] * outputs.shape[3])
+
+    end = outputs.shape[0]
+    targets = torch.arange(0, end=end) / (patch_num_dim**2)
+
+    return outputs, targets
+
 
 def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
                 metrics, visualize_workings, with_labels=False):
@@ -86,7 +95,7 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         outputs = model(*data)
 
         if not with_labels:
-            outputs, targets = reshape_outputs_and_create_labels(outputs)
+            outputs, targets = reshape_outputs_and_create_labels_conv(outputs, patch_num_dim=model.patch_num_dim)
 
         if cuda:
             if targets is not None:
@@ -164,7 +173,7 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics, visualize_workings,
             outputs = model(*data)
 
             if not with_labels:
-                outputs, targets = reshape_outputs_and_create_labels(outputs)
+                outputs, targets = reshape_outputs_and_create_labels_conv(outputs, patch_num_dim=model.patch_num_dim)
 
             if cuda:
                 if targets is not None:
