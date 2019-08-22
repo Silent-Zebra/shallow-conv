@@ -3,25 +3,25 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 13
+downsampled_size = 11
 
 batch_size = 512
 
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 80
+n_epochs = 200
 # log every x batches
 log_interval = 10
 
-patch_size = 12
+patch_size = 10
 patch_stride = 1
 
 # Convnet hyperparameters
 lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
+layer1_kernel_size = 6
 layer1_output_channels = 256
 layer1_padding = 0
 use_relu = True
