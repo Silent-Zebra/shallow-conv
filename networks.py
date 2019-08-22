@@ -162,6 +162,38 @@ class EmbeddingNet(nn.Module):
         return self.forward(x)
 
 
+class EmbeddingNetWithPooling(nn.Module):
+    def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
+                 layer1_output_channels, layer1_padding=0, use_relu=True):
+        super(EmbeddingNetWithPooling, self).__init__()
+
+        self.num_filters = layer1_output_channels
+
+        maxpool_size = 2
+        maxpool_stride = maxpool_size
+
+        if use_relu:
+          self.convnet = nn.Sequential(
+              nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
+                        layer1_stride, layer1_padding),
+              nn.MaxPool2d(maxpool_size, maxpool_stride),
+              nn.ReLU()
+          )
+        else:
+          self.convnet = nn.Sequential(
+              nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
+                        layer1_stride, layer1_padding),
+              nn.MaxPool2d(maxpool_size, maxpool_stride),
+          )
+
+    def forward(self, x):
+        output = self.convnet(x)
+        return output.squeeze()
+
+    def get_embedding(self, x):
+        return self.forward(x)
+
+
 class TwoLayerEmbeddingNet(nn.Module):
     def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
                  layer1_output_channels, layer1_padding=0, use_relu=True):

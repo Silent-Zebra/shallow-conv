@@ -64,7 +64,7 @@ def visualize_image_from_file2(filename):
           break
 
     # fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
-    fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (16,16))
+    fig, axes = plt.subplots(nrows=int(2048/12)+1, ncols=12,figsize = (16,16*10))
 
 
     for i, ax in enumerate(axes.flatten()):

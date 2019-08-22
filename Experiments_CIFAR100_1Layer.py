@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 10
+downsampled_size = 11
 
 batch_size = 512
 
@@ -14,14 +14,14 @@ n_epochs = 80
 # log every x batches
 log_interval = 10
 
-patch_size = 9
+patch_size = 10
 patch_stride = 1
 
 # Convnet hyperparameters
-lr = 1e-3 / 2
+lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
+layer1_kernel_size = 6
 layer1_output_channels = 64
 layer1_padding = 0
 use_relu = True
@@ -60,12 +60,12 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 from torch.optim import lr_scheduler
 import torch.optim as optim
 from trainer import fit
-from networks import EmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet
+from networks import EmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet, EmbeddingNetWithPooling
 from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
-embedding_net = EmbeddingNet(input_depth=input_depth,
+embedding_net = EmbeddingNetWithPooling(input_depth=input_depth,
                              layer1_stride=layer1_stride,
                              layer1_kernel_size=layer1_kernel_size,
                              layer1_output_channels=layer1_output_channels,
