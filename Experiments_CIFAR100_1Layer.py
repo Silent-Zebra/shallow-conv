@@ -57,7 +57,6 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
 
 
-from torch.optim import lr_scheduler
 import torch.optim as optim
 from trainer import fit
 from networks import EmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet, EmbeddingNetWithPooling
@@ -75,6 +74,7 @@ model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
                          patch_stride=patch_stride, input_size=downsampled_size)
 if cuda:
     model.cuda()
+
 loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
