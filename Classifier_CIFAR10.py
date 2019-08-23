@@ -18,8 +18,8 @@ log_interval = 100
 lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
-layer1_output_channels = 64
+layer1_kernel_size = 6
+layer1_output_channels = 256
 layer1_padding = 0
 
 visualize_filter = True
@@ -49,7 +49,7 @@ test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
 
 cuda = torch.cuda.is_available()
 
-kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
+kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
 

@@ -16,8 +16,8 @@ log_interval = 100
 lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
-layer1_output_channels = 64
+layer1_kernel_size = 6
+layer1_output_channels = 256
 layer1_padding = 0
 
 # Number of examples to visualize and see how the network embeds
@@ -75,7 +75,7 @@ if not random_features:
         trained_model = torch.load("model_supervised.pt", map_location="cpu")
         model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
     else:
-        model.convnet[0].load_state_dict(torch.load("model_unsupervised_Aug15.pt", map_location="cpu"))
+        model.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
 
 # Freeze weights of that layer
 if freeze_layers:
