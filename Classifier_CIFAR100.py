@@ -85,7 +85,7 @@ fit_classifier(train_loader, test_loader, model, loss_fn, optimizer, scheduler, 
 torch.save(model, 'model_supervised.pt')
 
 if visualize_filter:
-    filename = "visualization"
+    filename = "visualization_supervised"
     # Reset
     open(filename, 'w').close()
 
