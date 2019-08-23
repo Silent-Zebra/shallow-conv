@@ -2,13 +2,13 @@
 
 # --- HYPERPARAMETERS ---
 
-random_features = False
+random_features = True
 load_supervised = False
 freeze_layers = True
 
 batch_size = 128
 
-n_epochs = 500
+n_epochs = 100
 # log every x batches
 log_interval = 100
 

@@ -10,7 +10,7 @@ batch_size = 128
 # margin for triplet loss function
 # margin = 1.
 
-n_epochs = 500
+n_epochs = 100
 # log every x batches
 log_interval = 20
 
@@ -18,8 +18,8 @@ log_interval = 20
 lr = 1e-3
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
-layer1_output_channels = 64
+layer1_kernel_size = 6
+layer1_output_channels = 256
 layer1_padding = 0
 
 visualize_filter = True
