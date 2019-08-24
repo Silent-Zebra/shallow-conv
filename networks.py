@@ -252,7 +252,7 @@ class TwoLayerEmbeddingNet(nn.Module):
 
     def forward(self, x):
         output = self.convnet(x)
-        return output.squeeze()
+        return output
 
     def get_embedding(self, x):
         return self.forward(x)

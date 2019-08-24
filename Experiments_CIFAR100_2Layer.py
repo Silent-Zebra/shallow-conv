@@ -3,23 +3,26 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 9
+downsampled_size = 13
 
-batch_size = 1000
+batch_size = 512
 
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 0
+n_epochs = 10
 # log every x batches
 log_interval = 10
+
+patch_size = 12
+patch_stride = 1
 
 # Convnet hyperparameters
 lr = 1e-4
 input_depth = 3
 layer1_stride = 1
-layer1_kernel_size = 8
-layer1_output_channels = 64
+layer1_kernel_size = 6
+layer1_output_channels = 256
 layer1_padding = 0
 use_relu = True
 
@@ -58,7 +61,7 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 from torch.optim import lr_scheduler
 import torch.optim as optim
 from trainer import fit
-from networks import TwoLayerEmbeddingNet, TripletNet, OnlineTripletNet
+from networks import TwoLayerEmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet
 from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
@@ -70,9 +73,12 @@ embedding_net = TwoLayerEmbeddingNet(input_size = downsampled_size,
                              layer1_output_channels=layer1_output_channels,
                              layer1_padding=layer1_padding,
                              use_relu=use_relu)
-model = OnlineTripletNet(embedding_net)
+model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
+                         patch_stride=patch_stride, input_size=downsampled_size)
+
 if cuda:
     model.cuda()
+
 loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
@@ -84,7 +90,7 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised_2layer"
+    visualization_filename = "visualization_unsupervised_2l"
     # Reset
     open(visualization_filename, 'w').close()
 
@@ -101,4 +107,4 @@ if visualize_filter:
     #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2layer.pt')
+torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2l.pt')
