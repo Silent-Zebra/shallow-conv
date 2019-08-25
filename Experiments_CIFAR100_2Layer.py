@@ -10,7 +10,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 300
+n_epochs = 80
 # log every x batches
 log_interval = 10
 
@@ -78,7 +78,7 @@ model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
 if cuda:
     model.cuda()
 
-loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
+loss_fn = OnlineTripletLoss(margin, RandomNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
