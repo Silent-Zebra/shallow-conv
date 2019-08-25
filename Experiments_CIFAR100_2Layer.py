@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 24
+downsampled_size = 28
 
 batch_size = 512
 
@@ -14,8 +14,8 @@ n_epochs = 80
 # log every x batches
 log_interval = 10
 
-patch_size = 20
-patch_stride = 4
+patch_size = 14
+patch_stride = 14
 
 # Convnet hyperparameters
 lr = 1e-3
@@ -66,8 +66,7 @@ from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
-embedding_net = TwoLayerEmbeddingNet(input_size = downsampled_size,
-                             input_depth=input_depth,
+embedding_net = TwoLayerEmbeddingNet(input_depth=input_depth,
                              layer1_stride=layer1_stride,
                              layer1_kernel_size=layer1_kernel_size,
                              layer1_output_channels=layer1_output_channels,

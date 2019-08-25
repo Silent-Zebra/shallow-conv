@@ -195,7 +195,7 @@ class EmbeddingNetWithPooling(nn.Module):
 
 
 class TwoLayerEmbeddingNet(nn.Module):
-    def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
+    def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
                  layer1_output_channels, layer1_padding=0, use_relu=True):
         super(TwoLayerEmbeddingNet, self).__init__()
 
@@ -204,22 +204,12 @@ class TwoLayerEmbeddingNet(nn.Module):
         maxpool_size = 2
         maxpool_stride = maxpool_size
 
-        layer1_output_size = int((int(
-            input_size) - layer1_kernel_size + 2 * layer1_padding) / layer1_stride + 1)
-        # after maxpool
-        layer1_output_size = int(
-            (layer1_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
 
         layer2_kernel_size = 3
         layer2_stride = 1
         layer2_padding = 0
 
-        layer2_output_size = int((int(
-            layer1_output_size) - layer2_kernel_size + 2 * layer2_padding) / layer2_stride + 1)
-        # after maxpool
-        layer2_output_size = int(
-            (layer2_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
-        print(layer2_output_size)
+        # output size has to be calculated with ConvEmbeddingNet patch generation
 
         if use_relu:
             self.convnet = nn.Sequential(
