@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 17
+downsampled_size = 24
 
 batch_size = 512
 
@@ -14,11 +14,11 @@ n_epochs = 80
 # log every x batches
 log_interval = 10
 
-patch_size = 16
-patch_stride = 1
+patch_size = 20
+patch_stride = 4
 
 # Convnet hyperparameters
-lr = 1e-4
+lr = 1e-3
 input_depth = 3
 layer1_stride = 1
 layer1_kernel_size = 6
@@ -79,7 +79,7 @@ model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
 if cuda:
     model.cuda()
 
-loss_fn = OnlineTripletLoss(margin, HardestNegativeTripletSelector(margin))
+loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
