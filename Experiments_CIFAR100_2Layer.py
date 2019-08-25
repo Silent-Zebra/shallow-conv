@@ -79,7 +79,7 @@ model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
 if cuda:
     model.cuda()
 
-loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
+loss_fn = OnlineTripletLoss(margin, HardestNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
