@@ -4,6 +4,7 @@
 
 random_features = False
 load_supervised = True
+load_one_layer = False
 freeze_layers = True
 
 batch_size = 128
@@ -72,8 +73,19 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
 # Load 1 conv layer
 if not random_features:
     if load_supervised:
+        conv_layers = []
         trained_model = torch.load("model_supervised.pt", map_location="cpu")
-        model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
+        if load_one_layer:
+            model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
+        else:
+            for layer in trained_model.convnet:
+                if isinstance(layer, torch.nn.Conv2d):
+                    conv_layers.append(layer)
+            i = 0
+            for layer in model.convnet:
+                if isinstance(layer, torch.nn.Conv2d):
+                    layer.load_state_dict(conv_layers[i].state_dict())
+                    i += 1
     else:
         model.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
 
