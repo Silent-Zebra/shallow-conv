@@ -36,13 +36,13 @@ class ClassifierCNN(nn.Module):
                       layer1_stride, layer1_padding),
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(layer1_output_channels, layer1_output_channels,
                       layer2_kernel_size,
                       layer2_stride, layer2_padding),
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
-            nn.LeakyReLU(),
+            nn.ReLU(),
         )
         # layer3_kernel_size = 3
         # layer3_stride = 1
@@ -56,24 +56,24 @@ class ClassifierCNN(nn.Module):
         #               layer1_stride, layer1_padding),
         #     nn.MaxPool2d(maxpool_size, maxpool_stride),
         #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.LeakyReLU(),
+        #     nn.ReLU(),
         #     nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
         #               layer2_stride, layer2_padding),
         #     nn.MaxPool2d(maxpool_size, maxpool_stride),
         #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.LeakyReLU(),
+        #     nn.ReLU(),
         #     nn.Conv2d(layer1_output_channels, layer1_output_channels,
         #               layer3_kernel_size,
         #               layer3_stride, layer3_padding),
         #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.LeakyReLU(),
+        #     nn.ReLU(),
         # )
 
         hidden_units = 512
 
         self.fc = nn.Sequential(
             nn.Linear(layer2_output_size**2 * layer1_output_channels, hidden_units),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.BatchNorm1d(hidden_units),
             nn.Linear(hidden_units, output_size),
             nn.Softmax(dim=1)
@@ -137,12 +137,12 @@ class ConvEmbeddingNet(nn.Module):
 
 class EmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_relu=True):
+                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
         super(EmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
 
-        if use_relu:
+        if use_ReLU:
           self.convnet = nn.Sequential(
               nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                         layer1_stride, layer1_padding),
@@ -164,7 +164,7 @@ class EmbeddingNet(nn.Module):
 
 class EmbeddingNetWithPooling(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_relu=True):
+                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
         super(EmbeddingNetWithPooling, self).__init__()
 
         self.num_filters = layer1_output_channels
@@ -172,7 +172,7 @@ class EmbeddingNetWithPooling(nn.Module):
         maxpool_size = 2
         maxpool_stride = maxpool_size
 
-        if use_relu:
+        if use_ReLU:
           self.convnet = nn.Sequential(
               nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                         layer1_stride, layer1_padding),
@@ -196,7 +196,7 @@ class EmbeddingNetWithPooling(nn.Module):
 
 class TwoLayerEmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_relu=True):
+                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
         super(TwoLayerEmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
@@ -211,19 +211,19 @@ class TwoLayerEmbeddingNet(nn.Module):
 
         # output size has to be calculated with ConvEmbeddingNet patch generation
 
-        if use_relu:
+        if use_ReLU:
             self.convnet = nn.Sequential(
                 nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                           layer1_stride, layer1_padding),
                 nn.MaxPool2d(maxpool_size, maxpool_stride),
                 nn.BatchNorm2d(layer1_output_channels),
-                nn.LeakyReLU(),
+                nn.ReLU(),
                 nn.Conv2d(layer1_output_channels, layer1_output_channels,
                           layer2_kernel_size,
                           layer2_stride, layer2_padding),
                 nn.MaxPool2d(maxpool_size, maxpool_stride),
                 nn.BatchNorm2d(layer1_output_channels),
-                nn.LeakyReLU(),
+                nn.ReLU(),
             )
         else:
             self.convnet = nn.Sequential(

@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 29 
+downsampled_size = 29
 
 batch_size = 512
 
@@ -98,7 +98,7 @@ if visualize_filter:
     open(visualization_filename, 'w').close()
 
     for layer in model.embedding_net.convnet:
-        if isinstance(layer, torch.nn.Conv2d) or isinstance(layer, torch.nn.Linear):
+        if isinstance(layer, torch.nn.Conv2d):
             for filter in layer.weight:
                 filter = utils.normalize_01(filter)
                 utils.save_image_visualization(filter.detach().cpu().numpy(),
