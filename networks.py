@@ -137,12 +137,12 @@ class ConvEmbeddingNet(nn.Module):
 
 class EmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
+                 layer1_output_channels, layer1_padding=0, use_relu=True):
         super(EmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
 
-        if use_ReLU:
+        if use_relu:
           self.convnet = nn.Sequential(
               nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                         layer1_stride, layer1_padding),
@@ -164,7 +164,7 @@ class EmbeddingNet(nn.Module):
 
 class EmbeddingNetWithPooling(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
+                 layer1_output_channels, layer1_padding=0, use_relu=True):
         super(EmbeddingNetWithPooling, self).__init__()
 
         self.num_filters = layer1_output_channels
@@ -172,7 +172,7 @@ class EmbeddingNetWithPooling(nn.Module):
         maxpool_size = 2
         maxpool_stride = maxpool_size
 
-        if use_ReLU:
+        if use_relu:
           self.convnet = nn.Sequential(
               nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                         layer1_stride, layer1_padding),
@@ -196,7 +196,7 @@ class EmbeddingNetWithPooling(nn.Module):
 
 class TwoLayerEmbeddingNet(nn.Module):
     def __init__(self, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding=0, use_ReLU=True):
+                 layer1_output_channels, layer1_padding=0, use_relu=True):
         super(TwoLayerEmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
@@ -211,7 +211,7 @@ class TwoLayerEmbeddingNet(nn.Module):
 
         # output size has to be calculated with ConvEmbeddingNet patch generation
 
-        if use_ReLU:
+        if use_relu:
             self.convnet = nn.Sequential(
                 nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
                           layer1_stride, layer1_padding),
