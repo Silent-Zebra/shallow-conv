@@ -10,7 +10,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 80
+n_epochs = 0
 # log every x batches
 log_interval = 10
 
@@ -110,4 +110,4 @@ if visualize_filter:
     #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_fullconv.pt')
+torch.save(model.embedding_net, 'model_unsupervised_fullconv.pt')
