@@ -62,7 +62,10 @@ def reshape_outputs_and_create_labels(outputs):
 
 def reshape_outputs_and_create_labels_conv(outputs, patch_num_dim):
     # patch_num_dim is the same as in networks: 2 implies 2x2 = 4 "neighbours"
-    outputs = outputs.view(outputs.shape[0], outputs.shape[1] * outputs.shape[2] * outputs.shape[3])
+    try:
+        outputs = outputs.view(outputs.shape[0], outputs.shape[1] * outputs.shape[2] * outputs.shape[3])
+    except IndexError: # for conv with FC layer
+        pass
 
     end = outputs.shape[0]
     targets = torch.arange(0, end=end) / (patch_num_dim**2)

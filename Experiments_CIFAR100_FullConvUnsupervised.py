@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 28
+downsampled_size = 32
 
 batch_size = 512
 
@@ -14,8 +14,8 @@ n_epochs = 80
 # log every x batches
 log_interval = 10
 
-patch_size = 14
-patch_stride = 14
+patch_size = 28
+patch_stride = 4
 
 # Convnet hyperparameters
 lr = 1e-3
@@ -61,17 +61,21 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 from torch.optim import lr_scheduler
 import torch.optim as optim
 from trainer import fit
-from networks import TwoLayerEmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet
+from networks import TwoLayerEmbeddingNet, TripletNet, OnlineTripletNet, ConvEmbeddingNet, ClassifierCNN
 from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
-embedding_net = TwoLayerEmbeddingNet(input_depth=input_depth,
+output_size = 100
+
+embedding_net = ClassifierCNN(input_size=patch_size,
+                              input_depth=input_depth,
                              layer1_stride=layer1_stride,
                              layer1_kernel_size=layer1_kernel_size,
                              layer1_output_channels=layer1_output_channels,
                              layer1_padding=layer1_padding,
-                             use_relu=use_relu)
+                              output_size=output_size
+                             )
 model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
                          patch_stride=patch_stride, input_size=downsampled_size)
 
@@ -89,12 +93,12 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised_2l"
+    visualization_filename = "visualization_unsupervised_fullconv"
     # Reset
     open(visualization_filename, 'w').close()
 
     for layer in model.embedding_net.convnet:
-        if isinstance(layer, torch.nn.Conv2d):
+        if isinstance(layer, torch.nn.Conv2d) or isinstance(layer, torch.nn.Linear):
             for filter in layer.weight:
                 filter = utils.normalize_01(filter)
                 utils.save_image_visualization(filter.detach().cpu().numpy(),
@@ -106,4 +110,4 @@ if visualize_filter:
     #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2l.pt')
+torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_fullconv.pt')
