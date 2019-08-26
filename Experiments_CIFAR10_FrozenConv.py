@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 random_features = False
-load_supervised = False
+load_supervised = True
 freeze_layers = True
 
 batch_size = 128
