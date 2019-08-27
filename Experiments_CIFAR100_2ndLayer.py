@@ -138,9 +138,9 @@ fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
 
 if visualize_filter:
     if use_pooling:
-        visualization_filename = "visualization_unsupervised_1l"
+        visualization_filename = "visualization_unsupervised_2ndl"
     else:
-        visualization_filename = "visualization_unsupervised_1l_nopool"
+        visualization_filename = "visualization_unsupervised_2ndl_nopool"
     # Reset
     open(visualization_filename, 'w').close()
 
@@ -149,8 +149,8 @@ if visualize_filter:
         utils.save_image_visualization(filter.detach().cpu().numpy(),
                                        filename=visualization_filename)
 if use_pooling:
-    filename = 'model_unsupervised_1l.pt'
+    filename = 'model_unsupervised_2ndl.pt'
 else:
-    filename = 'model_unsupervised_1l_nopool.pt'
+    filename = 'model_unsupervised_2ndl_nopool.pt'
 
 torch.save(model.embedding_net.convnet[0].state_dict(), filename)
