@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 random_features = False
-load_supervised = True
+load_supervised = False
 load_one_layer = False
 freeze_layers = True
 
@@ -70,24 +70,36 @@ model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
                         layer1_padding=layer1_padding,
                         output_size=output_size)
 
+
+def load_trained_model(trained_model, model):
+    conv_layers = []
+    for layer in trained_model.convnet:
+        if isinstance(layer, torch.nn.Conv2d):
+            conv_layers.append(layer)
+    i = 0
+    for layer in model.convnet:
+        if isinstance(layer, torch.nn.Conv2d):
+            layer.load_state_dict(conv_layers[i].state_dict())
+            i += 1
+
+
 # Load 1 conv layer
 if not random_features:
     if load_supervised:
-        conv_layers = []
+
         trained_model = torch.load("model_supervised.pt", map_location="cpu")
         if load_one_layer:
             model.convnet[0].load_state_dict(trained_model.convnet[0].state_dict())
         else:
-            for layer in trained_model.convnet:
-                if isinstance(layer, torch.nn.Conv2d):
-                    conv_layers.append(layer)
-            i = 0
-            for layer in model.convnet:
-                if isinstance(layer, torch.nn.Conv2d):
-                    layer.load_state_dict(conv_layers[i].state_dict())
-                    i += 1
+            load_trained_model(trained_model, model)
+
     else:
-        model.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
+        if load_one_layer:
+            model.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
+        else:
+            trained_model = torch.load("model_unsupervised_2ndl.pt", map_location="cpu")
+            load_trained_model(trained_model, model)
+
 
 # Freeze weights of that layer
 if freeze_layers:

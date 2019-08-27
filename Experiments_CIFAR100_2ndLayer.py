@@ -114,4 +114,4 @@ if visualize_filter:
     #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2ndl.pt')
+torch.save(model.embedding_net, 'model_unsupervised_2ndl.pt')
