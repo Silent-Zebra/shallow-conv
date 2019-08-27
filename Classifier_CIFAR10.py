@@ -22,7 +22,7 @@ layer1_kernel_size = 6
 layer1_output_channels = 256
 layer1_padding = 0
 
-visualize_filter = True
+visualize_filter = False
 
 # Number of examples to visualize and see how the network embeds
 visualize_model_working = 0
@@ -77,7 +77,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # learning rate decay over epochs
-scheduler = lr_scheduler.StepLR(optimizer, 500, gamma=0.1, last_epoch=-1)
+scheduler = lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1, last_epoch=-1)
 
 fit_classifier(train_loader, test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
