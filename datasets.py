@@ -14,7 +14,7 @@ class FirstLayerProcessedCIFAR100(Dataset):
 
     def __getitem__(self, index):
         embedding = self.frozen_conv_network(self.dataset[index][0].unsqueeze(dim=0))
-        return embedding, self.dataset[index][1]
+        return embedding.squeeze(), self.dataset[index][1]
 
     def __len__(self):
         return len(self.dataset)
