@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 random_features = False
-load_supervised = True
+load_supervised = False
 load_one_layer = False
 freeze_layers = True
 
