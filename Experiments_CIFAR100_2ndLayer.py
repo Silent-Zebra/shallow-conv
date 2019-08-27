@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 28
+downsampled_size = 15
 
 batch_size = 512
 
@@ -15,7 +15,7 @@ n_epochs = 80
 log_interval = 10
 
 patch_size = 14
-patch_stride = 14
+patch_stride = 1
 
 # Convnet hyperparameters
 lr = 1e-3
