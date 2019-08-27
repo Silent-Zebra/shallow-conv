@@ -97,8 +97,18 @@ if not random_features:
         if load_one_layer:
             model.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
         else:
-            trained_model = torch.load("model_unsupervised_2ndl.pt", map_location="cpu")
-            load_trained_model(trained_model, model)
+            i = 0
+            for layer in model.convnet:
+                if isinstance(layer, torch.nn.Conv2d):
+                    if i == 0:
+                        layer.load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
+                    elif i == 1:
+                        layer.load_state_dict(torch.load("model_unsupervised_2ndl.pt", map_location="cpu"))
+
+                    i += 1
+
+            # trained_model = torch.load("model_unsupervised_2ndl.pt", map_location="cpu")
+            # load_trained_model(trained_model, model)
 
 
 # Freeze weights of that layer
