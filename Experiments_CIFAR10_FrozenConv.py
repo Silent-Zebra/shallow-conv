@@ -103,8 +103,14 @@ if not random_features:
 
 # Freeze weights of that layer
 if freeze_layers:
-    for param in model.convnet[0].parameters():
-        param.requires_grad = False
+    if load_one_layer:
+        for param in model.convnet[0].parameters():
+            param.requires_grad = False
+    else:
+        for layer in model.convnet:
+            if isinstance(layer, torch.nn.Conv2d):
+                for param in layer.parameters():
+                    param.requires_grad = False
 
 if cuda:
     model.cuda()
