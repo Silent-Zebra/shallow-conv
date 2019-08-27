@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 28
+downsampled_size = 15
 
 batch_size = 512
 
@@ -15,7 +15,7 @@ n_epochs = 80
 log_interval = 10
 
 patch_size = 14
-patch_stride = 14
+patch_stride = 1
 
 # Convnet hyperparameters
 lr = 1e-3
@@ -74,6 +74,14 @@ embedding_net = TwoLayerEmbeddingNet(input_depth=input_depth,
 model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
                          patch_stride=patch_stride, input_size=downsampled_size)
 
+
+# Load 1 conv layer
+model.embedding_net.convnet[0].load_state_dict(torch.load("model_unsupervised_1l.pt", map_location="cpu"))
+
+# Freeze weights of that layer
+for param in model.embedding_net.convnet[0].parameters():
+    param.requires_grad = False
+
 if cuda:
     model.cuda()
 
@@ -88,7 +96,7 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised_2l"
+    visualization_filename = "visualization_unsupervised_2ndl"
     # Reset
     open(visualization_filename, 'w').close()
 
@@ -105,4 +113,4 @@ if visualize_filter:
     #                                    filename=visualization_filename)
 
 
-torch.save(model.embedding_net.convnet.state_dict(), 'model_unsupervised_2l.pt')
+torch.save(model.embedding_net, 'model_unsupervised_2ndl.pt')

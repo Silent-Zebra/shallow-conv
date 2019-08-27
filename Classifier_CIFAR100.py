@@ -31,7 +31,6 @@ visualize_model_working = 0
 from torchvision.datasets import CIFAR100
 from torchvision import transforms
 import utils
-# from datasets import DownsampledCIFAR100
 import torch
 import torch.nn as nn
 
