@@ -101,7 +101,16 @@ model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
 if cuda:
     model.cuda()
 
-frozen_embedding_net = EmbeddingNet(input_depth=input_depth,
+
+if use_pooling:
+    frozen_embedding_net = EmbeddingNetWithPooling(input_depth=input_depth,
+                                        layer1_stride=frozen_layer1_stride,
+                                        layer1_kernel_size=frozen_layer1_kernel_size,
+                                        layer1_output_channels=frozen_layer1_output_channels,
+                                        layer1_padding=frozen_layer1_padding,
+                                        use_relu=frozen_use_relu)
+else:
+    frozen_embedding_net = EmbeddingNet(input_depth=input_depth,
                                  layer1_stride=frozen_layer1_stride,
                                  layer1_kernel_size=frozen_layer1_kernel_size,
                                  layer1_output_channels=frozen_layer1_output_channels,
