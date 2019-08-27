@@ -44,7 +44,7 @@ if use_pooling:
 else:
     crop_size = downsampled_size + (frozen_layer1_kernel_size - 1)
 
-visualize_filter = True
+visualize_filter = False
 
 # Number of examples to visualize and see how the network embeds
 visualize_model_working = 0
