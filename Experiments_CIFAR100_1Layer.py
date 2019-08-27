@@ -10,7 +10,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 500
+n_epochs = 100
 # log every x batches
 log_interval = 10
 
@@ -25,6 +25,8 @@ layer1_kernel_size = 6
 layer1_output_channels = 256
 layer1_padding = 0
 use_relu = True
+
+use_pooling = False
 
 visualize_filter = True
 
@@ -64,12 +66,20 @@ from losses import TripletLoss, OnlineTripletLoss
 from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
-embedding_net = EmbeddingNetWithPooling(input_depth=input_depth,
-                             layer1_stride=layer1_stride,
-                             layer1_kernel_size=layer1_kernel_size,
-                             layer1_output_channels=layer1_output_channels,
-                             layer1_padding=layer1_padding,
-                             use_relu=use_relu)
+if use_pooling:
+    embedding_net = EmbeddingNetWithPooling(input_depth=input_depth,
+                                 layer1_stride=layer1_stride,
+                                 layer1_kernel_size=layer1_kernel_size,
+                                 layer1_output_channels=layer1_output_channels,
+                                 layer1_padding=layer1_padding,
+                                 use_relu=use_relu)
+else:
+    embedding_net = EmbeddingNet(input_depth=input_depth,
+                                 layer1_stride=layer1_stride,
+                                 layer1_kernel_size=layer1_kernel_size,
+                                 layer1_output_channels=layer1_output_channels,
+                                 layer1_padding=layer1_padding,
+                                 use_relu=use_relu)
 model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
                          patch_stride=patch_stride, input_size=downsampled_size)
 if cuda:
@@ -85,8 +95,13 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
 
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
+
+
 if visualize_filter:
-    visualization_filename = "visualization_unsupervised_1l"
+    if use_pooling:
+        visualization_filename = "visualization_unsupervised_1l"
+    else:
+        visualization_filename = "visualization_unsupervised_1l_nopool"
     # Reset
     open(visualization_filename, 'w').close()
 
@@ -94,6 +109,9 @@ if visualize_filter:
         filter = utils.normalize_01(filter)
         utils.save_image_visualization(filter.detach().cpu().numpy(),
                                        filename=visualization_filename)
+if use_pooling:
+    filename = 'model_unsupervised_1l.pt'
+else:
+    filename = 'model_unsupervised_1l_nopool.pt'
 
-
-torch.save(model.embedding_net.convnet[0].state_dict(), 'model_unsupervised_1l.pt')
+torch.save(model.embedding_net.convnet[0].state_dict(), filename)
