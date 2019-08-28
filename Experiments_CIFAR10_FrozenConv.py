@@ -2,8 +2,6 @@
 
 # --- HYPERPARAMETERS ---
 
-print("hi")
-
 random_features = False
 load_supervised = False
 load_one_layer = True
@@ -22,6 +20,8 @@ layer1_stride = 1
 layer1_kernel_size = 6
 layer1_output_channels = 256
 layer1_padding = 0
+
+layer2_output_channels = 512
 
 # Number of examples to visualize and see how the network embeds
 visualize_model_working = 0
@@ -66,11 +66,12 @@ input_size = inputs.shape[2]
 output_size = 10
 
 model = ClassifierCNN(input_size=input_size, input_depth=input_depth,
-                        layer1_stride=layer1_stride,
-                        layer1_kernel_size=layer1_kernel_size,
-                        layer1_output_channels=layer1_output_channels,
-                        layer1_padding=layer1_padding,
-                        output_size=output_size)
+                      layer1_stride=layer1_stride,
+                      layer1_kernel_size=layer1_kernel_size,
+                      layer1_output_channels=layer1_output_channels,
+                      layer1_padding=layer1_padding,
+                      output_size=output_size,
+                      layer2_output_channels=layer2_output_channels)
 
 
 def load_trained_model(trained_model, model):

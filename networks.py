@@ -10,8 +10,11 @@ import utils
 
 class ClassifierCNN(nn.Module):
     def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
-                 layer1_output_channels, layer1_padding, output_size):
+                 layer1_output_channels, layer1_padding, output_size, layer2_output_channels=None):
         super(ClassifierCNN, self).__init__()
+
+        if layer2_output_channels == None:
+            layer2_output_channels = layer1_output_channels
 
         self.num_filters = layer1_output_channels
 
@@ -37,11 +40,11 @@ class ClassifierCNN(nn.Module):
             nn.MaxPool2d(maxpool_size, maxpool_stride),
             nn.BatchNorm2d(layer1_output_channels),
             nn.ReLU(),
-            nn.Conv2d(layer1_output_channels, layer1_output_channels,
+            nn.Conv2d(layer1_output_channels, layer2_output_channels,
                       layer2_kernel_size,
                       layer2_stride, layer2_padding),
             nn.MaxPool2d(maxpool_size, maxpool_stride),
-            nn.BatchNorm2d(layer1_output_channels),
+            nn.BatchNorm2d(layer2_output_channels),
             nn.ReLU(),
         )
         # layer3_kernel_size = 3
@@ -72,7 +75,7 @@ class ClassifierCNN(nn.Module):
         hidden_units = 512
 
         self.fc = nn.Sequential(
-            nn.Linear(layer2_output_size**2 * layer1_output_channels, hidden_units),
+            nn.Linear(layer2_output_size**2 * layer2_output_channels, hidden_units),
             nn.ReLU(),
             nn.BatchNorm1d(hidden_units),
             nn.Linear(hidden_units, output_size),

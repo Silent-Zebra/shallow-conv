@@ -20,10 +20,10 @@ patch_stride = 1
 # Convnet hyperparameters
 lr = 1e-3
 input_depth = 3
-layer1_stride = 1
-layer1_kernel_size = 3
-layer1_output_channels = 256
-layer1_padding = 0
+layer2_stride = 1
+layer2_kernel_size = 3
+layer2_output_channels = 512
+layer2_padding = 0
 use_relu = True
 
 frozen_layer1_stride = 1
@@ -83,18 +83,18 @@ from utils import AllTripletSelector,HardestNegativeTripletSelector, \
     RandomNegativeTripletSelector, SemihardNegativeTripletSelector, RandomTripletSelector
 
 if use_pooling:
-    embedding_net = EmbeddingNetWithPooling(input_depth=layer1_output_channels,
-                                 layer1_stride=layer1_stride,
-                                 layer1_kernel_size=layer1_kernel_size,
-                                 layer1_output_channels=layer1_output_channels,
-                                 layer1_padding=layer1_padding,
+    embedding_net = EmbeddingNetWithPooling(input_depth=frozen_layer1_output_channels,
+                                 layer1_stride=layer2_stride,
+                                 layer1_kernel_size=layer2_kernel_size,
+                                 layer1_output_channels=layer2_output_channels,
+                                 layer1_padding=layer2_padding,
                                  use_relu=use_relu)
 else:
-    embedding_net = EmbeddingNet(input_depth=layer1_output_channels,
-                                 layer1_stride=layer1_stride,
-                                 layer1_kernel_size=layer1_kernel_size,
-                                 layer1_output_channels=layer1_output_channels,
-                                 layer1_padding=layer1_padding,
+    embedding_net = EmbeddingNet(input_depth=frozen_layer1_output_channels,
+                                 layer1_stride=layer2_stride,
+                                 layer1_kernel_size=layer2_kernel_size,
+                                 layer1_output_channels=layer2_output_channels,
+                                 layer1_padding=layer2_padding,
                                  use_relu=use_relu)
 model = ConvEmbeddingNet(embedding_net=embedding_net, patch_size=patch_size,
                          patch_stride=patch_stride, input_size=downsampled_size)
