@@ -3,7 +3,7 @@
 # --- HYPERPARAMETERS ---
 
 # image size to downsample to
-downsampled_size = 7
+downsampled_size = 5
 
 batch_size = 512
 
@@ -14,7 +14,7 @@ n_epochs = 100
 # log every x batches
 log_interval = 10
 
-patch_size = 6
+patch_size = 4
 patch_stride = 1
 
 # Convnet hyperparameters
@@ -133,7 +133,7 @@ test_dataset = FirstLayerProcessedCIFAR100(test_dataset, frozen_embedding_net)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
 
-loss_fn = OnlineTripletLoss(margin, SemihardNegativeTripletSelector(margin))
+loss_fn = OnlineTripletLoss(margin, HardestNegativeTripletSelector(margin))
 val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
 optimizer = optim.Adam(model.parameters(), lr=lr)

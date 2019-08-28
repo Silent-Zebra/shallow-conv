@@ -5,8 +5,8 @@
 print("hi")
 
 random_features = False
-load_supervised = True
-load_one_layer = False
+load_supervised = False
+load_one_layer = True
 freeze_layers = False
 
 batch_size = 128
