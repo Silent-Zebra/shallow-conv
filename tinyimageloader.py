@@ -2,6 +2,7 @@ import os
 
 import numpy
 import scipy
+import numpy as np
 
 # paths to various data files
 data_file_path = "~/tiny-images/tiny_images.bin"
@@ -39,6 +40,7 @@ def closeTinyImage():
 
 num_images = 800000
 
+rand_nums = np.random.randint(0, img_count, num_images)
 
 output_path = "~/tiny-images-subset/"
 
@@ -46,6 +48,6 @@ openTinyImage()
 
 os.mkdir(output_path)
 for i in range(num_images):
-    sliceToImage(sliceToBin(i), output_path+"/"+str(i)+".png")
+    sliceToImage(sliceToBin(rand_nums[i]), output_path+"/"+str(i)+".png")
 
 closeTinyImage()
