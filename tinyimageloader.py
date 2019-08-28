@@ -2,10 +2,11 @@ import os
 
 import numpy
 import scipy
+import scipy.misc
 import numpy as np
 
 # paths to various data files
-data_file_path = "~/tiny-images/tiny_images.bin"
+data_file_path = os.path.expanduser("~/tiny-images/tiny_images.bin")
 
 # open data files
 data_file = 0
@@ -42,7 +43,7 @@ num_images = 800000
 
 rand_nums = np.random.randint(0, img_count, num_images)
 
-output_path = "~/tiny-images-subset/"
+output_path = os.path.expanduser("~/tiny-images-subset/")
 
 openTinyImage()
 
