@@ -10,7 +10,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 100
+n_epochs = 75
 # log every x batches
 log_interval = 10
 
