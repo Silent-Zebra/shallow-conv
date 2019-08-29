@@ -30,7 +30,7 @@ layer1_output_channels = 256
 layer1_padding = 0
 use_relu = True
 
-use_pooling = False
+use_pooling = True
 
 visualize_filter = True
 
