@@ -5,6 +5,8 @@
 # image size to downsample to
 import os
 
+print("hi")
+
 downsampled_size = 8
 
 batch_size = 512
@@ -12,7 +14,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 70
+n_epochs = 10
 # log every x batches
 log_interval = 10
 
@@ -47,7 +49,7 @@ train_dataset = datasets.ImageFolder(root=os.path.expanduser("~/tiny-images-subs
                                  transforms.RandomHorizontalFlip(),
                                  transforms.ToTensor(),
                              ]))
-test_dataset = datasets.ImageFolder(root=os.path.expanduser("~/tiny-images-subset/test/"), train=False, download=True,
+test_dataset = datasets.ImageFolder(root=os.path.expanduser("~/tiny-images-subset/test/"),
                             transform=transforms.Compose([
                                 transforms.RandomCrop(downsampled_size),
                                 transforms.RandomHorizontalFlip(),
@@ -93,7 +95,7 @@ val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
 # learning rate decay over epochs
-scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1)
+scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs, gamma=0.1)
 
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
