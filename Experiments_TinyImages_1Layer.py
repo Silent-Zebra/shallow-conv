@@ -14,7 +14,7 @@ batch_size = 512
 # margin for triplet loss function
 margin = 2.
 
-n_epochs = 10
+n_epochs = 0
 # log every x batches
 log_interval = 10
 
@@ -94,11 +94,34 @@ val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
+n_epochs2 = 50
+
+
 # learning rate decay over epochs
-scheduler = optim.lr_scheduler.StepLR(optimizer, n_epochs, gamma=0.1)
+scheduler = optim.lr_scheduler.StepLR(optimizer, (n_epochs + n_epochs2) // 1.2, gamma=0.1)
 
 fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
     n_epochs, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
+
+
+
+train_dataset = CIFAR100('./data/CIFAR100', train=True, download=True,
+                             transform=transforms.Compose([
+                                 transforms.RandomCrop(downsampled_size),
+                                 transforms.RandomHorizontalFlip(),
+                                 transforms.ToTensor(),
+                             ]))
+test_dataset = CIFAR100('./data/CIFAR100', train=False, download=True,
+                            transform=transforms.Compose([
+                                transforms.RandomCrop(downsampled_size),
+                                transforms.RandomHorizontalFlip(),
+                                transforms.ToTensor(),
+                            ]))
+
+
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
+
 
 
 if visualize_filter:
