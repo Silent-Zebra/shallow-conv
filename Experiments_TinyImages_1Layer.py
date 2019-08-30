@@ -122,6 +122,10 @@ test_dataset = CIFAR100('./data/CIFAR100', train=False, download=True,
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
 
+fit(train_loader, test_loader, model, loss_fn, optimizer, scheduler,
+    n_epochs2, cuda, log_interval, visualize_workings=visualize_model_working, val_loss_fn=val_loss_fn)
+
+
 
 
 if visualize_filter:
