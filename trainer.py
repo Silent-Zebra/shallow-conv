@@ -309,7 +309,7 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
 
 
 
-def fit_aux_classifier(train_loader, val_loader, model, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
+def fit_aux_classifier(train_loader, val_loader, model, conv_embedding_net, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
         start_epoch=0, visualize_workings=0):
 
     writer = SummaryWriter()
@@ -355,7 +355,7 @@ def fit_aux_classifier(train_loader, val_loader, model, classifier_loss_fn, aux_
         # Unsup/aux task
 
         # Train stage
-        train_loss, metrics = train_epoch(train_loader, model.embedding_net, aux_loss_fn,
+        train_loss, metrics = train_epoch(train_loader, conv_embedding_net, aux_loss_fn,
                                           optimizer, cuda, log_interval,
                                           metrics, visualize_workings)
 
@@ -364,7 +364,7 @@ def fit_aux_classifier(train_loader, val_loader, model, classifier_loss_fn, aux_
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
-        val_loss, metrics = test_epoch(val_loader, model.embedding_net, aux_val_loss_fn, cuda,
+        val_loss, metrics = test_epoch(val_loader, conv_embedding_net, aux_val_loss_fn, cuda,
                                        metrics, visualize_workings)
         val_loss /= len(val_loader)
 

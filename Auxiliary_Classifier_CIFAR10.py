@@ -128,7 +128,7 @@ aux_val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 # learning rate decay over epochs
 scheduler = lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1, last_epoch=-1)
 
-fit_aux_classifier(train_loader, test_loader, model, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
+fit_aux_classifier(train_loader, test_loader, model, conv_embedding_net, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 if visualize_filter:
     filename = "visualization_CIFAR10_aux"
