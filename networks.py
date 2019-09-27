@@ -7,6 +7,71 @@ import numpy as np
 from sklearn.feature_extraction.image import extract_patches_2d
 import utils
 
+class AuxiliaryClassifierCNN(nn.Module):
+    def __init__(self, embedding_net, input_size, output_size, layer2_output_channels=None):
+
+        # input_depth, layer1_stride, layer1_kernel_size,
+        # layer1_output_channels, layer1_padding = 0, use_relu = True
+
+        super(AuxiliaryClassifierCNN, self).__init__()
+
+        self.embedding_net = embedding_net
+
+        if layer2_output_channels == None:
+            layer2_output_channels = embedding_net.layer1_output_channels
+
+        self.num_filters = embedding_net.layer1_output_channels
+
+        maxpool_size = 2
+        maxpool_stride = maxpool_size
+
+        layer1_output_size = int((int(
+            input_size) - embedding_net.layer1_kernel_size + 2 * embedding_net.layer1_padding) / embedding_net.layer1_stride + 1)
+        # after maxpool
+        layer1_output_size = int(
+            (layer1_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
+
+        layer2_kernel_size = 3
+        layer2_stride = 1
+        layer2_padding = 0
+
+        layer2_output_size = int((int(
+            layer1_output_size) - layer2_kernel_size + 2 * layer2_padding) / layer2_stride + 1)
+        # after maxpool
+        layer2_output_size = int(
+            (layer2_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
+
+        self.convnet = nn.Sequential(
+            embedding_net,
+            nn.Conv2d(embedding_net.layer1_output_channels, layer2_output_channels,
+                      layer2_kernel_size,
+                      layer2_stride, layer2_padding),
+            nn.MaxPool2d(maxpool_size, maxpool_stride),
+            nn.BatchNorm2d(layer2_output_channels),
+            nn.ReLU(),
+        )
+
+        hidden_units = 512
+
+        self.fc = nn.Sequential(
+            nn.Linear(layer2_output_size ** 2 * layer2_output_channels,
+                      hidden_units),
+            nn.ReLU(),
+            nn.BatchNorm1d(hidden_units),
+            nn.Linear(hidden_units, output_size),
+            nn.Softmax(dim=1)
+        )
+
+        self.output_size = output_size
+
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = output.view(-1, output.shape[1] * output.shape[2]**2)
+        output = self.fc(output)
+        return output
+
+
 
 class ClassifierCNN(nn.Module):
     def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
@@ -144,6 +209,11 @@ class EmbeddingNet(nn.Module):
         super(EmbeddingNet, self).__init__()
 
         self.num_filters = layer1_output_channels
+        self.input_depth = input_depth
+        self.layer1_stride = layer1_stride
+        self.layer1_kernel_size = layer1_kernel_size
+        self.layer1_output_channels = layer1_output_channels
+        self.layer1_padding = layer1_padding
 
         if use_relu:
           self.convnet = nn.Sequential(
@@ -171,6 +241,11 @@ class EmbeddingNetWithPooling(nn.Module):
         super(EmbeddingNetWithPooling, self).__init__()
 
         self.num_filters = layer1_output_channels
+        self.input_depth = input_depth
+        self.layer1_stride = layer1_stride
+        self.layer1_kernel_size = layer1_kernel_size
+        self.layer1_output_channels = layer1_output_channels
+        self.layer1_padding = layer1_padding
 
         maxpool_size = 2
         maxpool_stride = maxpool_size
