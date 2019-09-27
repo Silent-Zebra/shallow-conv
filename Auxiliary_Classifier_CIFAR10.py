@@ -42,24 +42,40 @@ import torch
 import torch.nn as nn
 
 
-train_dataset = CIFAR10('./data/CIFAR10', train=True, download=True,
+sup_train_dataset = CIFAR10('./data/CIFAR10', train=True, download=True,
                              transform=transforms.Compose([
                                  transforms.RandomCrop(32, padding=4),
                                  transforms.RandomHorizontalFlip(),
                                  transforms.ToTensor(),
                              ]))
-test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
+sup_test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
                             transform=transforms.Compose([
+                                transforms.ToTensor(),
+                            ]))
+
+unsup_train_dataset = CIFAR10('./data/CIFAR10', train=True, download=True,
+                             transform=transforms.Compose([
+                                 transforms.RandomCrop(downsampled_size),
+                                 transforms.RandomHorizontalFlip(),
+                                 transforms.ToTensor(),
+                             ]))
+unsup_test_dataset = CIFAR10('./data/CIFAR10', train=False, download=True,
+                            transform=transforms.Compose([
+                                transforms.RandomCrop(downsampled_size),
+                                transforms.RandomHorizontalFlip(),
                                 transforms.ToTensor(),
                             ]))
 
 cuda = torch.cuda.is_available()
 
 kwargs = {'num_workers': 4, 'pin_memory': True} if cuda else {}
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
+sup_train_loader = torch.utils.data.DataLoader(sup_train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
+sup_test_loader = torch.utils.data.DataLoader(sup_test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
 
-inputs, classes = next(iter(train_loader))
+unsup_train_loader = torch.utils.data.DataLoader(unsup_train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
+unsup_test_loader = torch.utils.data.DataLoader(unsup_test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
+
+inputs, classes = next(iter(sup_train_loader))
 
 input_size = inputs.shape[2]
 output_size = 10
@@ -128,7 +144,7 @@ aux_val_loss_fn = OnlineTripletLoss(margin, RandomTripletSelector(margin))
 # learning rate decay over epochs
 scheduler = lr_scheduler.StepLR(optimizer, n_epochs // 1.5, gamma=0.1, last_epoch=-1)
 
-fit_aux_classifier(train_loader, test_loader, model, conv_embedding_net, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
+fit_aux_classifier(sup_train_loader, sup_test_loader, unsup_train_loader, unsup_test_loader, model, conv_embedding_net, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, visualize_workings=visualize_model_working)
 
 if visualize_filter:
     filename = "visualization_CIFAR10_aux"
