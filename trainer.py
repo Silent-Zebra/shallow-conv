@@ -326,7 +326,7 @@ def fit_aux_classifier(sup_train_loader, sup_val_loader, unsup_train_loader, uns
 
         # Unsup/aux task
 
-        unsup_iters_per_epoch = 5
+        unsup_iters_per_epoch = 10
         for i in range(unsup_iters_per_epoch):
             # Train stage
             train_loss, metrics = train_epoch(unsup_train_loader, conv_embedding_net,
