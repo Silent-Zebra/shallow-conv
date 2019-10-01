@@ -326,11 +326,13 @@ def fit_aux_classifier(sup_train_loader, sup_val_loader, unsup_train_loader, uns
 
         # Unsup/aux task
 
-        # Train stage
-        train_loss, metrics = train_epoch(unsup_train_loader, conv_embedding_net,
-                                          aux_loss_fn,
-                                          optimizer, cuda, log_interval,
-                                          metrics, visualize_workings)
+        unsup_iters_per_epoch = 5
+        for i in range(unsup_iters_per_epoch):
+            # Train stage
+            train_loss, metrics = train_epoch(unsup_train_loader, conv_embedding_net,
+                                              aux_loss_fn,
+                                              optimizer, cuda, log_interval,
+                                              metrics, visualize_workings)
 
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
             epoch + 1, n_epochs, train_loss)
