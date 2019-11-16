@@ -78,6 +78,31 @@ def visualize_image_from_file2(filename):
     plt.show()
 
 
+def visualize_image_from_file3(filename):
+    with open(filename, 'rb') as file:
+      images = []
+      while True:
+        try:
+          images.append(pickle.load(file))
+        except (EOFError):
+          break
+
+    # fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
+    cols = 16
+    fig, axes = plt.subplots(ncols=cols, nrows=int(len(images)/cols)+1, figsize=(8,8))
+
+
+    for i, ax in enumerate(axes.flatten()):
+      if i < len(images):
+        image = images[i]
+        visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
+        ax.imshow(visual)
+      ax.axis('off')
+
+    # fig.tight_layout()
+    plt.show()
+
+
 def normalize_01(tensor):
     return tensor / torch.max(torch.abs(tensor)) / 2 + 0.5
 
