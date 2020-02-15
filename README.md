@@ -1,6 +1,6 @@
 # Layer-Wise Contrastive Unsupervised Representation Learning
 
-This repository contains code for the extended abstract published in [RUCS](rucs.ca).
+This repository contains code for the extended abstract published in [RUCS](https://rucs.ca/).
 
 To learn the unsupervised filters, run Experiments_CIFAR100_1Layer.py. 
 
