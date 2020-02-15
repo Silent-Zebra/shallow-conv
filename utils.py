@@ -20,6 +20,11 @@ def generate_random_patch(image_tensor, patch_size):
     return patch
 
 
+def save_image_visualization(image, filename):
+    with open(filename, 'ab') as file:
+        pickle.dump(image, file)
+
+
 def visualize_image(image):
     visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
     plt.figure(figsize=(1,1))
@@ -29,54 +34,7 @@ def visualize_image(image):
     plt.show()
 
 
-def save_image_visualization(image, filename):
-    with open(filename, 'ab') as file:
-        pickle.dump(image, file)
-
-
 def visualize_image_from_file(filename):
-    with open(filename, 'rb') as file:
-        while True:
-            try:
-                image = pickle.load(file)
-                visualize_image(image)
-            except (EOFError):
-                break
-
-
-def visualize_image2(image):
-    visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
-    plt.figure(figsize=(1,1))
-    plt.imshow(visual)
-    plt.axis('off')
-    plt.tight_layout()
-    plt.show()
-
-def visualize_image_from_file2(filename):
-    with open(filename, 'rb') as file:
-      images = []
-      while True:
-        try:
-          images.append(pickle.load(file))
-        except (EOFError):
-          break
-
-    # fig, axes = plt.subplots(nrows=12, ncols=12,figsize = (8,8))
-    fig, axes = plt.subplots(nrows=int(2048/12)+1, ncols=12,figsize = (16,16*10))
-
-
-    for i, ax in enumerate(axes.flatten()):
-      if i < len(images):
-        image = images[i]
-        visual = make_lupton_rgb(image[0], image[1], image[2], stretch=1)
-        ax.imshow(visual)
-      ax.axis('off')
-
-    fig.tight_layout()
-    plt.show()
-
-
-def visualize_image_from_file3(filename):
     with open(filename, 'rb') as file:
       images = []
       while True:

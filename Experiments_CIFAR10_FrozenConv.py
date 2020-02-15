@@ -2,9 +2,12 @@
 
 # --- HYPERPARAMETERS ---
 
+# Test against a random feature baseline
 random_features = False
+# Load the supervised filters instead of unsupervised
 load_supervised = False
 load_one_layer = True
+# Freeze layers means no fine-tuning
 freeze_layers = False
 
 batch_size = 128
