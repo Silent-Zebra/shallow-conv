@@ -27,8 +27,6 @@ layer2_output_channels = 512
 visualize_model_working = 0
 
 
-
-
 from torchvision.datasets import CIFAR10
 from torchvision import transforms
 import utils
@@ -109,9 +107,6 @@ if not random_features:
                         layer.load_state_dict(torch.load("model_unsupervised_2ndl.pt", map_location="cpu"))
 
                     i += 1
-
-            # trained_model = torch.load("model_unsupervised_2ndl.pt", map_location="cpu")
-            # load_trained_model(trained_model, model)
 
 
 # Freeze weights of that layer

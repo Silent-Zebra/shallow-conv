@@ -1,5 +1,4 @@
 # Adapted from https://github.com/adambielski/siamese-triplet
-import random
 
 import numpy as np
 import torch
@@ -43,7 +42,6 @@ def visualize_image_from_file(filename):
                 visualize_image(image)
             except (EOFError):
                 break
-
 
 
 def visualize_image2(image):

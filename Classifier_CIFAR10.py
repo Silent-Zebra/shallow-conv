@@ -1,14 +1,7 @@
 # Adapted from https://github.com/adambielski/siamese-triplet
 
 # --- HYPERPARAMETERS ---
-
-# image size to downsample to
-# downsampled_size = 16
-
 batch_size = 128
-
-# margin for triplet loss function
-# margin = 1.
 
 n_epochs = 100
 # log every x batches

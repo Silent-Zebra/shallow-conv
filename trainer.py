@@ -10,15 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
         start_epoch=0, visualize_workings=0, val_loss_fn=None):
-    """
-    Loaders, model, loss function and metrics should work together for a given task,
-    i.e. The model should be able to process data output of loaders,
-    loss function should process targets output of loaders and outputs from the model
 
-    Examples: Classification: batch loader, classification model, NLL loss, accuracy metric
-    Siamese network: Siamese loader, siamese model, contrastive loss
-    Online triplet learning: batch loader, embedding model, online triplet loss
-    """
     if val_loss_fn is None:
       val_loss_fn = loss_fn
 
@@ -61,7 +53,6 @@ def reshape_outputs_and_create_labels(outputs):
     return outputs, targets
 
 def reshape_outputs_and_create_labels_conv(outputs, patch_num_dim):
-    # patch_num_dim is the same as in networks: 2 implies 2x2 = 4 "neighbours"
     if len(outputs.shape) >= 3:
         outputs = outputs.view(outputs.shape[0], outputs.shape[1] * outputs.shape[2] * outputs.shape[3])
 
@@ -73,8 +64,6 @@ def reshape_outputs_and_create_labels_conv(outputs, patch_num_dim):
 
 def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
                 metrics, visualize_workings, with_labels=False):
-
-    # TODO combine duplicate code in test and train epochs
 
     for metric in metrics:
         metric.reset()
@@ -109,7 +98,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
         if with_labels:
             predictions = torch.argmax(outputs, dim=1)
 
-            # correct = predictions==torch.argmax(targets, dim=1)
             correct = predictions==targets
             correct = correct.float()
 
@@ -135,9 +123,6 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval,
 
         for metric in metrics:
             metric(outputs, targets, loss_outputs)
-
-        # for parameter in model.convnet[0].parameters():
-        #     print(parameter)
 
         if batch_idx % log_interval == 0:
             message = 'Train: [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -263,15 +248,6 @@ def visualize_difference(model, data, visualize_workings=0):
 
 def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
         start_epoch=0, visualize_workings=0):
-    """
-    Loaders, model, loss function and metrics should work together for a given task,
-    i.e. The model should be able to process data output of loaders,
-    loss function should process targets output of loaders and outputs from the model
-
-    Examples: Classification: batch loader, classification model, NLL loss, accuracy metric
-    Siamese network: Siamese loader, siamese model, contrastive loss
-    Online triplet learning: batch loader, embedding model, online triplet loss
-    """
 
     writer = SummaryWriter()
 
@@ -308,78 +284,3 @@ def fit_classifier(train_loader, val_loader, model, loss_fn, optimizer, schedule
     writer.close()
 
 
-
-def fit_aux_classifier(sup_train_loader, sup_val_loader, unsup_train_loader, unsup_val_loader, model, conv_embedding_net, classifier_loss_fn, aux_loss_fn, aux_val_loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-        start_epoch=0, visualize_workings=0):
-
-    writer = SummaryWriter()
-
-    for epoch in range(0, start_epoch):
-        scheduler.step()
-
-    if aux_val_loss_fn is None:
-        aux_val_loss_fn = aux_loss_fn
-
-    for epoch in range(start_epoch, n_epochs):
-
-        scheduler.step()
-
-        # Unsup/aux task
-
-        unsup_iters_per_epoch = 10
-        for i in range(unsup_iters_per_epoch):
-            # Train stage
-            train_loss, metrics = train_epoch(unsup_train_loader, conv_embedding_net,
-                                              aux_loss_fn,
-                                              optimizer, cuda, log_interval,
-                                              metrics, visualize_workings)
-
-        message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(
-            epoch + 1, n_epochs, train_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
-
-        val_loss, metrics = test_epoch(unsup_val_loader, conv_embedding_net,
-                                       aux_val_loss_fn, cuda,
-                                       metrics, visualize_workings)
-        val_loss /= len(unsup_val_loader)
-
-        message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(
-            epoch + 1, n_epochs,
-            val_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
-
-        print(message)
-
-        writer.add_scalar("Validation Aux Task Loss", val_loss, epoch + 1)
-
-        # Sup task
-
-        # Train stage
-        train_loss, metrics = train_epoch(sup_train_loader, model, classifier_loss_fn, optimizer,
-                                          cuda, log_interval, metrics, visualize_workings, with_labels=True)
-
-        message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(epoch + 1, n_epochs, train_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
-
-        val_loss, metrics, accuracy = test_epoch(sup_val_loader, model, classifier_loss_fn, cuda, metrics,
-                                       visualize_workings, with_labels=True)
-        val_loss /= len(sup_val_loader)
-
-
-        message += '\nEpoch: {}/{}. Validation set: Average loss: {:.4f}'.format(epoch + 1, n_epochs,
-                                                                                 val_loss)
-        for metric in metrics:
-            message += '\t{}: {}'.format(metric.name(), metric.value())
-
-        print(message)
-
-        print("Validation Average Accuracy: " + str(accuracy))
-
-        writer.add_scalar("Validation Average Accuracy", accuracy, epoch + 1)
-
-
-
-    writer.close()

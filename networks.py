@@ -7,71 +7,6 @@ import numpy as np
 from sklearn.feature_extraction.image import extract_patches_2d
 import utils
 
-class AuxiliaryClassifierCNN(nn.Module):
-    def __init__(self, embedding_net, input_size, output_size, layer2_output_channels=None):
-
-        # input_depth, layer1_stride, layer1_kernel_size,
-        # layer1_output_channels, layer1_padding = 0, use_relu = True
-
-        super(AuxiliaryClassifierCNN, self).__init__()
-
-        self.embedding_net = embedding_net
-
-        if layer2_output_channels == None:
-            layer2_output_channels = embedding_net.layer1_output_channels
-
-        self.num_filters = embedding_net.layer1_output_channels
-
-        maxpool_size = 2
-        maxpool_stride = maxpool_size
-
-        layer1_output_size = int((int(
-            input_size) - embedding_net.layer1_kernel_size + 2 * embedding_net.layer1_padding) / embedding_net.layer1_stride + 1)
-        # after maxpool
-        layer1_output_size = int(
-            (layer1_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
-
-        layer2_kernel_size = 3
-        layer2_stride = 1
-        layer2_padding = 0
-
-        layer2_output_size = int((int(
-            layer1_output_size) - layer2_kernel_size + 2 * layer2_padding) / layer2_stride + 1)
-        # after maxpool
-        layer2_output_size = int(
-            (layer2_output_size - (maxpool_size - 1) - 1) / maxpool_stride) + 1
-
-        self.convnet = nn.Sequential(
-            embedding_net,
-            nn.Conv2d(embedding_net.layer1_output_channels, layer2_output_channels,
-                      layer2_kernel_size,
-                      layer2_stride, layer2_padding),
-            nn.MaxPool2d(maxpool_size, maxpool_stride),
-            nn.BatchNorm2d(layer2_output_channels),
-            nn.ReLU(),
-        )
-
-        hidden_units = 512
-
-        self.fc = nn.Sequential(
-            nn.Linear(layer2_output_size ** 2 * layer2_output_channels,
-                      hidden_units),
-            nn.ReLU(),
-            nn.BatchNorm1d(hidden_units),
-            nn.Linear(hidden_units, output_size),
-            nn.Softmax(dim=1)
-        )
-
-        self.output_size = output_size
-
-
-    def forward(self, x):
-        output = self.convnet(x)
-        output = output.view(-1, output.shape[1] * output.shape[2]**2)
-        output = self.fc(output)
-        return output
-
-
 
 class ClassifierCNN(nn.Module):
     def __init__(self, input_size, input_depth, layer1_stride, layer1_kernel_size,
@@ -112,30 +47,6 @@ class ClassifierCNN(nn.Module):
             nn.BatchNorm2d(layer2_output_channels),
             nn.ReLU(),
         )
-        # layer3_kernel_size = 3
-        # layer3_stride = 1
-        # layer3_padding = 0
-        #
-        # layer3_output_size = int((int(
-        #     layer2_output_size) - layer3_kernel_size + 2 * layer3_padding) / layer3_stride + 1)
-        #
-        # self.convnet = nn.Sequential(
-        #     nn.Conv2d(input_depth, layer1_output_channels, layer1_kernel_size,
-        #               layer1_stride, layer1_padding),
-        #     nn.MaxPool2d(maxpool_size, maxpool_stride),
-        #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.ReLU(),
-        #     nn.Conv2d(layer1_output_channels, layer1_output_channels, layer2_kernel_size,
-        #               layer2_stride, layer2_padding),
-        #     nn.MaxPool2d(maxpool_size, maxpool_stride),
-        #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.ReLU(),
-        #     nn.Conv2d(layer1_output_channels, layer1_output_channels,
-        #               layer3_kernel_size,
-        #               layer3_stride, layer3_padding),
-        #     nn.BatchNorm2d(layer1_output_channels),
-        #     nn.ReLU(),
-        # )
 
         hidden_units = 512
 
@@ -149,7 +60,6 @@ class ClassifierCNN(nn.Module):
 
         self.output_size = output_size
 
-
     def forward(self, x):
         output = self.convnet(x)
         output = output.view(-1, output.shape[1] * output.shape[2]**2)
@@ -157,29 +67,19 @@ class ClassifierCNN(nn.Module):
         return output
 
 
-
 def generate_patches(image_tensor_batch, patch_size, patch_stride):
 
-    size = patch_size  # patch size
-    stride = patch_stride  # patch stride
+    size = patch_size
+    stride = patch_stride
     patches = image_tensor_batch.unfold(2, size, stride)
     patches = patches.unfold(3, size, stride)
-    # print(patches.shape)
 
     patches = patches.permute(0, 2, 3, 1, 4, 5).contiguous()
-
-    # utils.visualize_image(image_tensor_batch[0])
-    #
-    # print(patches.shape)
-    #
-    # utils.visualize_image(patches[0][0][0])
-    # utils.visualize_image(patches[0][0][1])
 
     return patches
 
 
 class ConvEmbeddingNet(nn.Module):
-    # 16 patch size maybe, 2 patch stride maybe, doesn't really matter, patch num dim = 2 for 2x2=4 patches
     def __init__(self, embedding_net, patch_size, patch_stride, input_size):
         super(ConvEmbeddingNet, self).__init__()
 
@@ -191,9 +91,7 @@ class ConvEmbeddingNet(nn.Module):
     def forward(self, x):
 
         patches = generate_patches(x, self.patch_size, self.patch_stride)
-
         patches = patches.view(patches.shape[0]*patches.shape[1]*patches.shape[2], patches.shape[3], patches.shape[4], patches.shape[5])
-        # print(patches.shape)
 
         output = self.embedding_net(patches)
 
@@ -286,8 +184,6 @@ class TwoLayerEmbeddingNet(nn.Module):
         layer2_kernel_size = 3
         layer2_stride = 1
         layer2_padding = 0
-
-        # output size has to be calculated with ConvEmbeddingNet patch generation
 
         if use_relu:
             self.convnet = nn.Sequential(
